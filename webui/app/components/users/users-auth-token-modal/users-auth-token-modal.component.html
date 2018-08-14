@@ -1,0 +1,33 @@
+<div class="openattic-modal-header">
+    <span>生成API授权码</span>
+</div>
+<div class="openattic-modal-content">
+  <p>
+        您正在生成一个新的API授权码。
+  </p>
+  <p>
+    <i class="fa fa-exclamation-triangle"></i>请注意，此操作会使之前的授权码失效，且执行操作后所有使用旧授权码的应用均需要更新。
+
+  </p>
+  <p>
+        点击<kbd>生成</kbd>确定执行，点击取消则返回之前的页面。
+  </p>
+</div>
+<div class="openattic-modal-footer">
+  <form name="$ctrl.generateForm"
+        role="form"
+        novalidate>
+    <div class="button-group text-right">
+      <button id="bot2-Msg1"
+              class="btn btn-primary btn-sm"
+              ng-click="$ctrl.generateAuthToken()">
+        生成
+      </button>
+      <button id="bot1-Msg1"
+              class="btn btn-link btn-sm"
+              ng-click="$ctrl.cancel()">
+        取消
+      </button>
+    </div>
+  </form>
+</div>

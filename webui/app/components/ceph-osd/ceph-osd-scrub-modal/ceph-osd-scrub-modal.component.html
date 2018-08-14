@@ -1,0 +1,28 @@
+<div class="openattic-modal-header">
+  <span>Ceph OSD {{$ctrl.resolve.deep ? 'Deep ' : ''}}Scrub</span>
+</div>
+
+<form name="$ctrl.form"
+      role="form"
+      novalidate>
+  <div class="openattic-modal-content">
+    <p>
+      为Ceph OSD <strong>{{$ctrl.resolve.osd.name}}</strong> 启用{{$ctrl.resolve.deep ? 'deep ' : ''}}scrub。
+    </p>
+  </div>
+
+  <div class="openattic-modal-footer">
+    <div class="button-group text-right">
+      <oa-submit-button form="$ctrl.form"
+                        on-submit="$ctrl.scrub()">
+        提交
+      </oa-submit-button>
+
+      <button id="cancelButton"
+              class="btn btn-link btn-sm"
+              ng-click="$ctrl.cancel()">
+        取消
+      </button>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,32 @@
+<oa-delete-confirmation-modal title="{{ ($ctrl.resolve.rbdSelection.length > 1) ? '删除RBDs' : '删除RBD' }}"
+                           on-confirm="$ctrl.delete()" on-cancel="$ctrl.cancel()">
+  <!-- single rbd -->
+  <div ng-if="$ctrl.resolve.rbdSelection.length === 1">
+    <p>
+      您正在删除RBD:<strong>{{$ctrl.resolve.rbdSelection[0].name}}</strong>.
+    </p>
+    <p>
+        请注意，删除此RBD将<strong>丢失</strong><strong>所有数据</strong>，
+      且此操作 <strong>不可撤销</strong>。
+    </p>
+  </div>
+  <!-- end single rbd -->
+
+  <!-- multiple rbds -->
+  <div ng-if="$ctrl.resolve.rbdSelection.length > 1">
+    <p>
+    您正在删除多个RBD。
+    </p>
+    <p>
+      请注意，删除这些RBD将<strong>丢失</strong><strong>所有数据</strong>，
+      且此操作 <strong>不可撤销</strong>。
+    </p>
+    <span class="text-danger"> 下列RBD即将被删除：</span>
+      <ul class="text-danger">
+        <li ng-repeat="rad in $ctrl.resolve.rbdSelection">
+          {{rad.name}} ({{rad.size | bytes}})
+        </li>
+      </ul>
+  </div>
+  <!-- end multiple rbds -->
+</oa-delete-confirmation-modal>

@@ -1,0 +1,101 @@
+<oa-module-loader module="ceph_radosgw">
+
+<oa-loading-panel message="对象网关bucket正在加载中..."
+                  ng-show="!$ctrl.error && !$ctrl.buckets.results">
+</oa-loading-panel>
+<oa-error-panel ng-if="$ctrl.error">
+    bucket列表无法加载。
+</oa-error-panel>
+
+<oadatatable ng-show="!$ctrl.error && $ctrl.buckets.results"
+             class="oadatatable tc_oadatatable_buckets"
+             data="$ctrl.buckets"
+             filter-config="$ctrl.filterConfig"
+             selection="$ctrl.selection"
+             on-selection-change="$ctrl.onSelectionChange(selection)"
+             on-filter-config-change="$ctrl.getBucketList()">
+    <actions>
+        <a class="btn btn-sm btn-primary tc_addBucket"
+           type="button"
+           ng-click="$ctrl.addAction()"
+           ng-hide="$ctrl.hasSelection || $ctrl.multiSelection">
+            <i class="fa fa-fw fa-plus"></i>添加
+        </a>
+        <a class="btn btn-sm btn-primary tc_editBucket"
+           type="button"
+           ng-click="$ctrl.editAction()"
+           ng-show="$ctrl.hasSelection">
+            <i class="fa fa-fw fa-pencil"></i>编辑
+        </a>
+        <a class="btn btn-sm btn-primary tc_deleteBucket"
+           type="button"
+           ng-click="$ctrl.deleteAction()"
+           ng-show="$ctrl.multiSelection">
+            <i class="fa fa-fw fa-trash-o"></i>删除
+        </a>
+        <li>
+            <a ng-click="$ctrl.addAction()">
+                <i class="fa fa-fw fa-plus"></i>添加
+            </a>
+        </li>
+        <li class="tc_editBucket"
+            ng-class="{disabled: !$ctrl.hasSelection}">
+            <a ng-click="$ctrl.editAction()">
+                <i class="fa fa-fw fa-pencil"></i>编辑
+            </a>
+        </li>
+        <li class="divider"></li>
+        <li class="tc_deleteItem"
+            ng-class="{disabled: !$ctrl.hasSelection && !$ctrl.multiSelection}">
+            <a ng-click="$ctrl.deleteAction()">
+                <i class="fa fa-fw fa-trash-o"></i>删除
+            </a>
+        </li>
+    </actions>
+    <table class="datatable table table-striped table-bordered table-hover dataTable">
+        <thead>
+            <tr>
+                <th class="oadatatablecheckbox"
+                    ng-if="selection.available">
+                    <input type="checkbox"
+                           ng-model="selection.checkAll">
+                </th>
+                <th sortfield="bucket"
+                    sortheaderclass
+                    ng-show="columns['名称']"
+                    sortdir="ASC">名称</th>
+                <th sortfield="owner"
+                    sortheaderclass
+                    ng-show="columns['所有人']">所有人</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="row in data.results"
+                ng-class="{info: isRowSelected(row)}"
+                class="clickable"
+                ng-click="toggleSelection(row, $event)">
+                <td ng-if="selection.available">
+                    <input type="checkbox"
+                           checklist-model="selection.items" checklist-value="row">
+                </td>
+                <td ng-show="columns['名称']">
+                    <a ui-sref="ceph-rgw-bucket-edit({bucket:row.bucket})"
+                       ng-bind="row.bucket"></a>
+                </td>
+                <td ng-show="columns['所有人']">
+                    <a ui-sref="ceph-rgw-user-edit({user_id:row.owner})"
+                       ng-bind="row.owner"></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</oadatatable>
+
+<div id="more"
+     ui-view="tab"
+     tab-data="$ctrl.tabData"
+     tab-config="$ctrl.tabConfig"
+     selection="$ctrl.selection">
+</div>
+
+</oa-module-loader>

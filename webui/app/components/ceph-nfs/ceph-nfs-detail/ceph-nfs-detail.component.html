@@ -1,0 +1,72 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title tc_panelTitle">{{ $ctrl.selection.item.host }}:{{ $ctrl.selection.item.path }}详情</h3>
+  </div>
+  <div class="panel-body">
+    <dl class="dl-horizontal">
+      <dt>主机:</dt>
+      <dd ng-bind="$ctrl.selection.item.host"></dd>
+      <dt>存储后端:</dt>
+      <dd ng-bind="$ctrl.getFsalDesc($ctrl.selection.item.fsal)"></dd>
+      <span ng-if="$ctrl.selection.item.fsal === 'RGW'">
+        <dt>对象网关用户:</dt>
+        <dd ng-bind="$ctrl.selection.item.rgwUserId"></dd>
+      </span>
+      <dt ng-bind="$ctrl.selection.item.fsal === 'RGW' ? 'Bucket:' : 'Ceph Path:'"></dt>
+      <dd ng-bind="$ctrl.selection.item.path"></dd>
+      <dt>NFS协议:</dt>
+      <dd ng-repeat="protocol in $ctrl.selection.item.protocols"
+          ng-bind="protocol"></dd>
+      <span ng-if="$ctrl.selection.item.tag">
+        <dt>NFS标签:</dt>
+        <dd ng-bind="$ctrl.selection.item.tag"></dd>
+      </span>
+      <span ng-if="$ctrl.selection.item.pseudo">
+        <dt>Pseudo:</dt>
+        <dd ng-bind="$ctrl.selection.item.pseudo"></dd>
+      </span>
+      <dt>访问类型:</dt>
+      <dd>
+        {{ $ctrl.selection.item.accessType }} - {{ $ctrl.getAccessTypeHelp($ctrl.selection.item.accessType) }}
+      </dd>
+      <dt>Squash:</dt>
+      <dd ng-bind="$ctrl.selection.item.squash"></dd>
+      <dt>传输协议:</dt>
+      <dd ng-repeat="transport in $ctrl.selection.item.transports"
+          ng-bind="transport"></dd>
+    </dl>
+
+    <span ng-repeat="clientBlock in $ctrl.selection.item.clientBlocks">
+      <hr>
+      <dl class="dl-horizontal">
+        <dt>客户端:</dt>
+        <dd ng-repeat="client in clientBlock.clients"
+            ng-bind="client"></dd>
+        <dt>访问类型:</dt>
+        <dd ng-if="clientBlock.accessType">
+          {{ clientBlock.accessType }} - {{ $ctrl.getAccessTypeHelp(clientBlock.accessType) }}
+        </dd>
+        <dd ng-if="!clientBlock.accessType && $ctrl.selection.item.accessType">
+          {{ $ctrl.selection.item.accessType }}
+          <span class="text-muted">(继承于全局配置)</span>
+        </dd>
+        <dt>Squash:</dt>
+        <dd ng-if="clientBlock.squash"
+            ng-bind="clientBlock.squash"></dd>
+        <dd ng-if="!clientBlock.squash && $ctrl.selection.item.squash">
+          {{ $ctrl.selection.item.squash }}
+          <span class="text-muted">(继承于全局配置)</span>
+        </dd>
+      </dl>
+    </span>
+
+    <legend>
+      <i class="fa fa-book"
+         aria-hidden="true"></i> 使用说明</legend>
+    <p>执行以下的命令挂载NFS导出项:</p>
+    <p>
+      <kbd ng-bind="$ctrl.getMountCommand()"></kbd>
+    </p>
+
+  </div>
+</div>

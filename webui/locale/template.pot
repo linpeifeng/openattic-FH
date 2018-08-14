@@ -1,0 +1,163 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Project-Id-Version: \n"
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:120
+msgid "(回滚中...)"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-form/ceph-rbd-form.component.html:23
+msgid "<span>{{ $ctrl.cloning ? '克隆' : '复制' }} from</span>"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-create-modal/ceph-rbd-snapshot-create-modal.component.html:43
+#: app/components/ceph-rbd/ceph-rbd-snapshot-rollback-modal/ceph-rbd-snapshot-rollback-modal.component.html:25
+msgid "Cancel"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-rollback-modal/ceph-rbd-snapshot-rollback-modal.component.html:2
+msgid "Ceph RBD Snapshot Rollback"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:7
+msgid "Ceph RBD Snapshot resources could not be loaded."
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-error-modal/ceph-rbd-snapshot-error-modal.component.html:53
+msgid "Close"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-form/ceph-rbd-form.component.html:42
+msgid "Copy From"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:3
+msgid "Loading..."
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-create-modal/ceph-rbd-snapshot-create-modal.component.html:16
+msgid "Name"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-detail/ceph-rbd-detail.component.html:41
+msgid "Parent:"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-error-modal/ceph-rbd-snapshot-error-modal.component.html:30
+msgid "Protected snapshots cannot be deleted."
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-error-modal/ceph-rbd-snapshot-error-modal.component.html:45
+msgid "RBD snapshot must be protected."
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-rollback-modal/ceph-rbd-snapshot-rollback-modal.component.html:19
+msgid "Rollback"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-error-modal/ceph-rbd-snapshot-error-modal.component.html:40
+msgid "Snapshot protection is only available for RBD images with \"Layering\" enabled."
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-error-modal/ceph-rbd-snapshot-error-modal.component.html:35
+msgid "Snapshot unprotection is only available for snapshots without children images."
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-delete-modal/ceph-rbd-snapshot-delete-modal.component.html:19
+msgid "The following RBD Snapshots will be deleted:"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-create-modal/ceph-rbd-snapshot-create-modal.component.html:28
+msgid "This field is required!"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-error-modal/ceph-rbd-snapshot-error-modal.component.html:18
+msgid "Unable to clone snapshot"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-error-modal/ceph-rbd-snapshot-error-modal.component.html:3
+msgid "Unable to delete snapshot"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-error-modal/ceph-rbd-snapshot-error-modal.component.html:13
+msgid "Unable to protect snapshot"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-error-modal/ceph-rbd-snapshot-error-modal.component.html:8
+msgid "Unable to unprotect snapshot"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-delete-modal/ceph-rbd-snapshot-delete-modal.component.html:16
+msgid "You are about to delete multiple RBD Snapshots."
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-delete-modal/ceph-rbd-snapshot-delete-modal.component.html:7
+msgid "You are about to delete the RBD Snapshot <strong>{{ name }}</strong>."
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-rollback-modal/ceph-rbd-snapshot-rollback-modal.component.html:10
+msgid "You are about to rollback"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-form/ceph-rbd-form.component.html:81
+msgid "{{errortext}}"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:129
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:50
+msgid "保护模式"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:56
+msgid "克隆"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:98
+msgid "创建时间"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:28
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:70
+msgid "删除"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-form/ceph-rbd-form.component.html:62
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:82
+msgid "名称"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:63
+msgid "回滚"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:88
+msgid "大小"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-form/ceph-rbd-form.component.html:84
+msgid "此RBD名称已被使用。"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:22
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:32
+msgid "添加"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:93
+msgid "状态"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-form/ceph-rbd-form.component.html:77
+msgid "请填写此栏!"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:39
+msgid "重命名"
+msgstr ""
+
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:132
+#: app/components/ceph-rbd/ceph-rbd-snapshot-list/ceph-rbd-snapshot-list.component.html:47
+msgid "非保护模式"
+msgstr ""

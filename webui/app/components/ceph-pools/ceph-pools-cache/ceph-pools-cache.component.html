@@ -1,0 +1,43 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">{{$ctrl.selection.item.name}}缓存</h3>
+  </div>
+  <div class="panel-body">
+    <h2>基本信息:</h2>
+    <dl class="dl-horizontal">
+      <div ng-show="$ctrl.selection.item.tier_of">
+        <dt>层级:</dt>
+        <dd ng-bind="$ctrl.selection.item.tier_of"></dd>
+      </div>
+      <div ng-show="$ctrl.selection.item.write_tier">
+        <dt>写入层:</dt>
+        <dd ng-bind="$ctrl.selection.item.write_tier"></dd>
+      </div>
+      <dt>层:</dt>
+      <dd ng-bind="$ctrl.selection.item.tiers | json"></dd>
+    </dl>
+
+    <div ng-show="$ctrl.selection.item.target_max_bytes !== 0 || $ctrl.selection.item.hit_set_period !== 0 ||
+                  $ctrl.selection.item.hit_set_count !== 0 || $ctrl.selection.item.hit_set_param.type !== none">
+      <h2>高级信息:</h2>
+      <dl class="dl-horizontal">
+        <div ng-show="$ctrl.selection.item.target_max_bytes !== 0">
+          <dt>缓存池缓存最大字节数:</dt>
+          <dd ng-bind="$ctrl.selection.item.target_max_bytes"></dd>
+        </div>
+        <div ng-show="$ctrl.selection.item.hit_set_period !== 0">
+          <dt>命中算法测量时间:</dt>
+          <dd ng-bind="$ctrl.selection.item.hit_set_period"></dd>
+        </div>
+        <div ng-show="$ctrl.selection.item.hit_set_count !== 0">
+          <dt>命中算法命中数:</dt>
+          <dd ng-bind="$ctrl.selection.item.hit_set_count"></dd>
+        </div>
+        <div ng-show="$ctrl.selection.item.hit_set_param.type !== none">
+          <dt>命中算法参数:</dt>
+          <dd ng-bind="$ctrl.selection.item.hit_set_params | json"></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>

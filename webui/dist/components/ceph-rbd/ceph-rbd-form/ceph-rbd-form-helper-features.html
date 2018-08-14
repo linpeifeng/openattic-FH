@@ -1,0 +1,8 @@
+<div>
+    <p>iSCSI将不再支持包含下列特性的RBD镜像</p>
+    <ul>
+        <li ng-repeat="(id, elem) in $ctrl.helperData" ng-if="!elem.isSupportedISCSI">
+            {{elem.desc}}
+        </li>
+    </ul>
+</div>

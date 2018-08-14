@@ -1,0 +1,40 @@
+<!-- search -->
+<div class="input-group pull-right" style="width:30%">
+  <span class="input-group-addon">
+    <i class="glyphicon glyphicon-search"></i>
+  </span>
+  <input class="form-control"
+         type="search"
+         ng-model="$ctrl.searchValue"
+         ng-change="$ctrl.getLogList()">
+  <span class="input-group-btn">
+    <button type="button"
+            class="btn btn-default clear-input tc_clearInputBtn"
+            ng-click="$ctrl.searchValue = '';$ctrl.getLogList()">
+      <i class="icon-prepend fa fa-remove"></i>
+    </button>
+  </span>
+</div>
+<!-- end search -->
+<table class="datatable table table-striped table-bordered table-hover dataTable" style="table-layout:fixed">
+    <thead>
+    <tr>
+        <th style="width:123px;">时间</th>
+        <th class="user">用户</th>
+        <th class="oper">操作</th>
+        <th style="width:123px;">资源</th>
+        <th>信息</th>
+        <th class="over">结果</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="row in $ctrl.data.message" class="clickable" style="word-break:break-word;">
+        <td ng-bind="row.date"></td>
+        <td ng-bind="row.user"></td>
+        <td ng-bind="row.operation | cephLogTypeFilter"></td>
+        <td ng-bind="row.resource"></td>
+        <td ng-bind="row.data"></td>
+        <td ng-bind="row.type | cephLogTypeFilter"></td>
+    </tr>
+    </tbody>
+</table>

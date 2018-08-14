@@ -1,0 +1,47 @@
+<div class="openattic-modal-header">
+  <span>Configure QoS</span>
+</div>
+<form name="QosSetForm" ng-submit="$ctrl.submitForm()" novalidate>
+  <div class="openattic-modal-content">
+    <div class="">
+      <div class="col-sm-11" style="margin-bottom:20px">
+        <div class="page-header">
+          <h3>IOPS QoS:</h3>
+        </div>
+        <div class="form-group" ng-class="{'has-error': (QosSetForm.$submitted || QosSetForm.ReadLimit.$dirty)
+        && QosSetForm.ReadLimit.$invalid}">
+          <label class="control-label" for="ReadLimit">Read Limit</label>
+          <input type="number" name="ReadLimit" validname placeholder="{{placeholder.ReadLimit}}" ng-model="Limit.ReadLimit"
+            class="form-control form-inline" style="width: 50%;height: 2.4rem;margin-left: 0.9rem;" min="0" required ng-keydown="$ctrl.minus($event)">
+          <span style="margin-left: 0.9rem">( 0: No Limit )</span>
+          <span style="margin-left: 0.9rem" ng-show="$ctrl.success">
+            <img src="images/success.png" alt="success">
+          </span>
+          <span style="margin-left: 0.9rem" ng-show="$ctrl.faild">
+            <img src="images/error.png" alt="faild">
+          </span>
+        </div>
+        <div class="form-group" ng-class="{'has-error': (QosSetForm.$submitted || QosSetForm.WriteLimit.$dirty)
+        && QosSetForm.WriteLimit.$invalid}">
+          <label class="control-label" for="WriteLimit">Write Limit</label>
+          <input type="number" name="WriteLimit" validname placeholder="{{placeholder.WriteLimit}}" ng-model="Limit.WriteLimit"
+            class="form-control form-inline" style="width: 50%;height: 2.4rem;margin-left: 0.9rem;" min="0" required ng-keydown="$ctrl.minus($event)">
+          <span style="margin-left: 0.9rem">( 0: No Limit )</span>
+          <span style="margin-left: 0.9rem" ng-show="$ctrl.success">
+            <img src="images/success.png" alt="success">
+          </span>
+          <span style="margin-left: 0.9rem" ng-show="$ctrl.faild">
+            <img src="images/error.png" alt="faild">
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="openattic-modal-footer">
+    <div class="button-group text-right">
+      <!-- <button type="submit" class="btn btn-primary" ng-disabled="QosSetForm.$invalid">Submit</button> -->
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" class="btn btn-default" ng-click="$ctrl.closeQos()">Cancel</button>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,21 @@
+<oa-delete-confirmation-modal title="{{ ($ctrl.resolve.selectionItems.length > 1) ? '删除NFS导出项' : '删除NFS导出项' }}"
+                              on-confirm="$ctrl.deleteNfs()"
+                              on-cancel="$ctrl.cancel()">
+  <div ng-if="$ctrl.resolve.selectionItems.length === 1">
+    <p>
+      您正在删除NFS导出项
+      <strong>{{$ctrl.resolve.selectionItems[0].host}}:{{$ctrl.resolve.selectionItems[0].path}}</strong>
+    </p>
+  </div>
+  <div ng-if="$ctrl.resolve.selectionItems.length > 1">
+    <p>
+      您正在删除多个NFS导出项。
+    </p>
+    <span class="text-danger">以下的NFS导出项将被删除:</span>
+    <ul class="text-danger">
+      <li ng-repeat="selectionItem in $ctrl.resolve.selectionItems">
+        {{selectionItem.host}}:{{selectionItem.path}}
+      </li>
+    </ul>
+  </div>
+</oa-delete-confirmation-modal>

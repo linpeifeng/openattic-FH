@@ -1,0 +1,80 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title"> {{$ctrl.selection.item.name}}状态</h3>
+  </div>
+  <div class="panel-body">
+    <dl class="dl-horizontal">
+      <dt>ID:</dt>
+      <dd ng-bind="$ctrl.selection.item.id"></dd>
+      <div ng-show="$ctrl.selection.item.max_avail">
+        <dt>存储池大小:</dt>
+        <dd ng-bind="$ctrl.selection.item.max_avail | bytes"></dd>
+      </div>
+      <div ng-show="$ctrl.selection.item.num_bytes">
+        <dt>已用:</dt>
+        <dd ng-bind="$ctrl.selection.item.num_bytes | bytes"></dd>
+      </div>
+      <dt>应用:</dt>
+      <dd ng-bind="$ctrl.selection.item.showApps"
+          ng-hide="$ctrl.selection.item.application_metadata.length === 0">
+      </dd>
+      <dd ng-show="$ctrl.selection.item.application_metadata.length === 0">无</dd>
+      <dt>归置组（PG）:</dt>
+      <dd ng-bind="$ctrl.selection.item.pg_num"></dd>
+      <div ng-show="$ctrl.selection.item.type === 'replicated'">
+        <dt>副本数:</dt>
+        <dd ng-bind="$ctrl.selection.item.size"></dd>
+      </div>
+      <div ng-show="$ctrl.selection.item.erasure_code_profile">
+        <dt>纠删码配置文件:</dt>
+        <dd ng-bind="$ctrl.selection.item.erasure_code_profile"></dd>
+      </div>
+      <dt>类型:</dt>
+      <dd ng-bind="$ctrl.selection.item.type"></dd>
+      <div ng-show="$ctrl.selection.item.crush_ruleset !== 0">
+        <dt>Crush算法规则组:</dt>
+        <dd ng-bind="$ctrl.selection.item.crush_ruleset"></dd>
+      </div>
+      <div ng-show="$ctrl.selection.item.flags.length > 0">
+        <dt>标识:</dt>
+        <dd ng-bind="flag"
+            class="tc-flag-{{flag}}"
+            ng-repeat="flag in $ctrl.selection.item.flags"></dd>
+      </div>
+      <div ng-show="$ctrl.selection.item.cluster.id">
+        <dt>集群ID:</dt>
+        <dd ng-bind="$ctrl.selection.item.cluster.id"></dd>
+      </div>
+      <dt>最后修改:</dt>
+      <dd ng-bind="$ctrl.selection.item.last_change"></dd>
+      <div ng-show="$ctrl.selection.item.stripe_width !== 0">
+        <dt>条带宽度:</dt>
+        <dd ng-bind="$ctrl.selection.item.stripe_width"></dd>
+      </div>
+      <div ng-show="$ctrl.selection.item.quota_max_bytes !== 0">
+        <dt>配额-最大字节数:</dt>
+        <dd ng-bind="$ctrl.selection.item.quota_max_bytes"></dd>
+      </div>
+      <div ng-show="$ctrl.selection.item.quota_max_objects !== 0">
+        <dt>配额-最大对象数:</dt>
+        <dd ng-bind="$ctrl.selection.item.quota_max_objects"></dd>
+      </div>
+    </dl>
+
+    <div ng-show="$ctrl.selection.item.compression_mode !== 'none'">
+      <h2>压缩信息:</h2>
+      <dl class="dl-horizontal">
+        <dt>模式:</dt>
+        <dd ng-bind="$ctrl.selection.item.compression_mode"></dd>
+        <dt>算法:</dt>
+        <dd ng-bind="$ctrl.selection.item.compression_algorithm"></dd>
+        <dt>最小blob尺寸:</dt>
+        <dd>{{$ctrl.selection.item.compression_min_blob_size | bytes}}</dd>
+        <dt>最大blob尺寸:</dt>
+        <dd>{{$ctrl.selection.item.compression_max_blob_size | bytes}}</dd>
+        <dt>压缩比:</dt>
+        <dd ng-bind="$ctrl.selection.item.compression_required_ratio"></dd>
+      </dl>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,528 @@
+<div class="col-sm-12 col-lg-6">
+
+  <oa-loading-panel message="设置正在加载..."
+                    ng-show="!$ctrl.error && !$ctrl.model.$resolved">
+  </oa-loading-panel>
+  <oa-error-panel ng-if="$ctrl.error">
+    设置无法加载。
+  </oa-error-panel>
+
+  <form ng-show="!$ctrl.error && $ctrl.model.$resolved"
+        name="$ctrl.settingsForm"
+        role="form"
+        class="form-horizontal"
+        novalidate
+        oa-check-form>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">设置</h3>
+      </div>
+      <div class="panel-body">
+        <legend style="display: none;">DeepSea / Salt REST API</legend>
+        <!-- Salt API Host -->
+        <div style="display: none;" class="form-group">
+          <label class="col-sm-3 control-label" for="saltApiHost">宿主机名/IP地址</label>
+          <div class="col-sm-9">
+            <input type="text"
+                   class="form-control"
+                   name="saltApiHost"
+                   id="saltApiHost"
+                   ng-model="$ctrl.model.deepsea.host"
+                   ng-change="$ctrl.checkDeepSeaConnection()">
+          </div>
+        </div>
+
+        <!-- Salt API Port -->
+        <div style="display: none;" class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="saltApiPort">TCP端口</label>
+          <div class="col-sm-9">
+            <input type="number"
+                   class="form-control"
+                   name="saltApiPort"
+                   id="saltApiPort"
+                   ng-model="$ctrl.model.deepsea.port"
+                   ng-change="$ctrl.checkDeepSeaConnection()">
+          </div>
+        </div>
+
+        <!-- Salt API Eauth -->
+        <div style="display: none;" class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="saltApiEauth">外部认证系统</label>
+          <div class="col-sm-9">
+            <select class="form-control"
+                    ng-model="$ctrl.model.deepsea.eauth"
+                    ng-options="eauth for eauth in ['auto', 'sharedsecret']"
+                    name="saltApiEauth"
+                    id="saltApiEauth"
+                    ng-change="$ctrl.checkDeepSeaConnection()">
+              <option value="">-- 请选择外部认证系统 --</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Salt API Username -->
+        <div style="display: none;" class="form-group"
+             ng-if="$ctrl.model.deepsea.eauth === 'auto' || $ctrl.model.deepsea.eauth === 'sharedsecret'">
+          <label class="col-sm-3 control-label"
+                 for="saltApiUsername">用户名</label>
+          <div class="col-sm-9">
+            <input type="text"
+                   class="form-control"
+                   name="saltApiUsername"
+                   id="saltApiUsername"
+                   ng-model="$ctrl.model.deepsea.username"
+                   ng-change="$ctrl.checkDeepSeaConnection()">
+          </div>
+        </div>
+
+        <!-- Salt API Shared Secret -->
+        <div style="display: none;"  class="form-group"
+             ng-if="$ctrl.model.deepsea.eauth === 'sharedsecret'">
+          <label class="col-sm-3 control-label"
+                 for="saltApiSharedSecret">
+           共享密钥
+            <oa-helper helper-template="'components/settings/settings-form/settings-form-helper-features.html'"></oa-helper>
+          </label>
+          <div class="col-sm-9">
+            <div class="input-group">
+              <input type="password"
+                     class="form-control"
+                     name="saltApiSharedSecret"
+                     id="saltApiSharedSecret"
+                     ng-model="$ctrl.model.deepsea.shared_secret"
+                     ng-change="$ctrl.checkDeepSeaConnection()">
+              <span class="input-group-btn">
+                <button type="button"
+                        class="btn btn-default"
+                        oa-password-button="saltApiSharedSecret">
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: none;"  class="pull-right">
+          <span ng-if="$ctrl.deepseaConnectionStatus.loading">
+            <i class="fa fa-fw fa-spinner fa-spin"
+               aria-hidden="true"></i>检查连接中
+          </span>
+          <span class="text-success tc_deepseaConnectionSuccess"
+                ng-show="$ctrl.deepseaConnectionStatus.success === true">
+            <i class="fa fa-fw fa-check"
+               aria-hidden="true"></i>Salt API连接成功
+          </span>
+          <span class="text-danger tc_deepseaConnectionFail"
+                ng-show="$ctrl.deepseaConnectionStatus.success === false">
+            <i class="fa fa-fw fa-times"
+               aria-hidden="true"></i>Salt API连接失败
+          </span>
+        </div>
+        <br>
+        <div class="pull-right">
+          <span class="text-muted"
+                ng-if="$ctrl.deepseaConnectionStatus.message">
+            {{ $ctrl.deepseaConnectionStatus.message }} -
+            <a ng-click="$ctrl.checkDeepSeaConnection()">重试</a>
+          </span>
+          <span ng-if="!$ctrl.deepseaConnectionStatus.message">&nbsp;</span>
+        </div>
+
+        <legend>对象网关</legend>
+
+        <!-- Object Gateway Managed by DeepSea -->
+        <div class="form-group">
+          <div class="col-sm-offset-3 col-sm-9">
+            <div class="checkbox checkbox-primary">
+              <input type="checkbox"
+                     ng-model="$ctrl.model.rgw.managed_by_deepsea"
+                     name="active"
+                     id="rgwManagedByDeepSea"
+                     ng-change="$ctrl.rgwManagedByDeepSeaChangeHandler()"
+                     ng-disabled="!$ctrl.managedByDeepSeaEnabled">
+              <label for="rgwManagedByDeepSea">
+               是否由DeepSea管理
+                <span ng-if="!$ctrl.managedByDeepSeaEnabled"
+                      class="text-muted">
+                  (DeepSea无法提供对象网关认证)
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Object Gateway Host -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="rgwApiHost">宿主机名/IP地址</label>
+          <div class="col-sm-9">
+            <input type="text"
+                   class="form-control"
+                   name="rgwApiHost"
+                   id="rgwApiHost"
+                   ng-model="$ctrl.model.rgw.host"
+                   ng-change="$ctrl.checkRgwConnection()"
+                   ng-disabled="$ctrl.model.rgw.managed_by_deepsea">
+          </div>
+        </div>
+
+        <!-- Object Gateway Port -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="rgwApiPort">TCP 端口</label>
+          <div class="col-sm-9">
+            <input type="number"
+                   class="form-control"
+                   name="rgwApiPort"
+                   id="rgwApiPort"
+                   ng-model="$ctrl.model.rgw.port"
+                   ng-change="$ctrl.checkRgwConnection()"
+                   ng-disabled="$ctrl.model.rgw.managed_by_deepsea">
+          </div>
+        </div>
+
+        <!-- Object Gateway Access Key -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="rgwApiAccessKey">访问密钥</label>
+          <div class="col-sm-9">
+            <input type="text"
+                   class="form-control"
+                   name="rgwApiAccessKey"
+                   id="rgwApiAccessKey"
+                   ng-model="$ctrl.model.rgw.access_key"
+                   ng-change="$ctrl.checkRgwConnection()"
+                   ng-disabled="$ctrl.model.rgw.managed_by_deepsea">
+          </div>
+        </div>
+
+        <!-- Object Gateway Secret Key -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="rgwApiSecretKey">密钥</label>
+          <div class="col-sm-9">
+            <div class="input-group">
+              <input type="password"
+                     class="form-control"
+                     name="rgwApiSecretKey"
+                     id="rgwApiSecretKey"
+                     ng-model="$ctrl.model.rgw.secret_key"
+                     ng-change="$ctrl.checkRgwConnection()"
+                     ng-disabled="$ctrl.model.rgw.managed_by_deepsea">
+              <span class="input-group-btn">
+                <button type="button"
+                        class="btn btn-default"
+                        oa-password-button="rgwApiSecretKey">
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Object Gateway Admin User -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="rgwApiAdminUser">管理员账户</label>
+          <div class="col-sm-9">
+            <input type="text"
+                   class="form-control"
+                   name="rgwApiAdminUser"
+                   id="rgwApiAdminUser"
+                   ng-model="$ctrl.model.rgw.user_id"
+                   ng-change="$ctrl.checkRgwConnection()"
+                   ng-disabled="$ctrl.model.rgw.managed_by_deepsea">
+          </div>
+        </div>
+
+        <!-- Object Gateway Admin Resource Path -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="rgwApiAdminResourcePath">管理员资源路径</label>
+          <div class="col-sm-9">
+            <input type="text"
+                   class="form-control"
+                   name="rgwApiAdminResourcePath"
+                   id="rgwApiAdminResourcePath"
+                   ng-model="$ctrl.model.rgw.admin_path"
+                   ng-change="$ctrl.checkRgwConnection()"
+                   ng-disabled="$ctrl.model.rgw.managed_by_deepsea">
+          </div>
+        </div>
+
+        <!-- Object Use SSL -->
+        <div class="form-group">
+          <div class="col-sm-offset-3 col-sm-9">
+            <div class="checkbox checkbox-primary">
+              <input type="checkbox"
+                     ng-model="$ctrl.model.rgw.use_ssl"
+                     name="active"
+                     id="rgwUseSSL"
+                     ng-change="$ctrl.checkRgwConnection()"
+                     ng-disabled="$ctrl.model.rgw.managed_by_deepsea">
+              <label for="rgwUseSSL">
+                是否启用SSL安全连接
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="pull-right">
+          <span ng-if="$ctrl.rgwConnectionStatus.loading">
+            <i class="fa fa-fw fa-spinner fa-spin"
+               aria-hidden="true"></i>检查连接中
+          </span>
+          <span class="text-success tc_rgwConnectionSuccess"
+                ng-show="$ctrl.rgwConnectionStatus.success === true">
+            <i class="fa fa-fw fa-check"
+               aria-hidden="true"></i>对象网关API连接成功
+          </span>
+          <span class="text-danger tc_rgwConnectionFail"
+                ng-show="$ctrl.rgwConnectionStatus.success === false">
+            <i class="fa fa-fw fa-times"
+               aria-hidden="true"></i>对象网关API连接失败
+          </span>
+        </div>
+        <br>
+        <div class="pull-right">
+          <span class="text-muted"
+                ng-if="$ctrl.rgwConnectionStatus.message">
+            {{ $ctrl.rgwConnectionStatus.message }} -
+            <a ng-click="$ctrl.checkRgwConnection()">重试</a>
+          </span>
+          <span ng-if="!$ctrl.rgwConnectionStatus.message">&nbsp;</span>
+        </div>
+
+        <legend style="display: none;">Grafana</legend>
+
+        <!-- Grafana Host -->
+        <div style="display: none;" class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="grafanaApiHost">宿主机名/IP地址</label>
+          <div class="col-sm-9">
+            <input type="text"
+                   class="form-control"
+                   name="grafanaApiHost"
+                   id="grafanaApiHost"
+                   ng-model="$ctrl.model.grafana.host"
+                   ng-change="$ctrl.checkGrafanaConnection()">
+          </div>
+        </div>
+
+        <!-- Grafana Port -->
+        <div style="display: none;" class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="grafanaApiPort">TCP 端口</label>
+          <div class="col-sm-9">
+            <input type="number"
+                   class="form-control"
+                   name="grafanaApiPort"
+                   id="grafanaApiPort"
+                   ng-model="$ctrl.model.grafana.port"
+                   ng-change="$ctrl.checkGrafanaConnection()">
+          </div>
+        </div>
+
+        <!-- Grafana Username -->
+        <div style="display: none;"  class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="grafanaApiUsername">Username</label>
+          <div class="col-sm-9">
+            <input type="text"
+                   class="form-control"
+                   name="grafanaApiUsername"
+                   id="grafanaApiUsername"
+                   ng-model="$ctrl.model.grafana.username"
+                   ng-change="$ctrl.checkGrafanaConnection()">
+          </div>
+        </div>
+
+        <!-- Grafana Password -->
+        <div style="display: none;"  class="form-group">
+          <label class="col-sm-3 control-label"
+                 for="grafanaApiPassword">Password</label>
+          <div class="col-sm-9">
+            <div class="input-group">
+              <input type="password"
+                     class="form-control"
+                     name="grafanaApiPassword"
+                     id="grafanaApiPassword"
+                     ng-model="$ctrl.model.grafana.password"
+                     ng-change="$ctrl.checkGrafanaConnection()"
+                     autocomplete="off">
+              <span class="input-group-btn">
+                <button type="button"
+                        class="btn btn-default"
+                        oa-password-button="grafanaApiPassword">
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grafana Use SSL -->
+        <div style="display: none;" class="form-group">
+          <div class="col-sm-offset-3 col-sm-9">
+            <div class="checkbox checkbox-primary">
+              <input type="checkbox"
+                     ng-model="$ctrl.model.grafana.use_ssl"
+                     name="active"
+                     id="grafanaUseSSL"
+                     ng-change="$ctrl.checkGrafanaConnection()">
+              <label for="grafanaUseSSL">
+                Use SSL
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: none;" class="pull-right">
+          <span ng-if="$ctrl.grafanaConnectionStatus.loading">
+            <i class="fa fa-fw fa-spinner fa-spin"
+               aria-hidden="true"></i>Checking connection
+          </span>
+          <span class="text-success tc_grafanaConnectionSuccess"
+                ng-show="$ctrl.grafanaConnectionStatus.success === true">
+            <i class="fa fa-fw fa-check"
+               aria-hidden="true"></i>Grafana connection established successfully
+          </span>
+          <span class="text-danger tc_grafanaConnectionFail"
+                ng-show="$ctrl.grafanaConnectionStatus.success === false">
+            <i class="fa fa-fw fa-times"
+               aria-hidden="true"></i>Grafana connection failed
+          </span>
+        </div>
+        <br>
+        <div class="pull-right">
+          <span class="text-muted"
+                ng-if="$ctrl.grafanaConnectionStatus.message">
+            {{ $ctrl.grafanaConnectionStatus.message }} -
+            <a ng-click="$ctrl.checkGrafanaConnection()">重试</a>
+          </span>
+          <span ng-if="!$ctrl.grafanaConnectionStatus.message">&nbsp;</span>
+        </div>
+
+        <legend>Ceph集群</legend>
+
+        <div ng-if="$ctrl.model.ceph.length === 0">
+          <div class="col-md-offset-3 col-sm-9">
+            <span class="text-muted">未配置Ceph集群</span>
+          </div>
+        </div>
+
+        <div ng-repeat="cephCluster in $ctrl.model.ceph">
+          <h3 class="sub-title">{{ cephCluster.name }} ({{ cephCluster.fsid }})</h3>
+
+          <!--  Ceph Cluster Config File -->
+          <div class="form-group">
+            <label class="col-sm-3 control-label"
+                   for="cephClusterConfigFilePath">配置文件路径</label>
+            <div class="col-sm-9">
+              <input type="text"
+                     class="form-control"
+                     name="cephClusterConfigFilePath"
+                     id="cephClusterConfigFilePath"
+                     ng-model="cephCluster.config_file_path"
+                     disabled>
+            </div>
+          </div>
+
+          <!--  Ceph Cluster Keyring File -->
+          <div class="form-group"
+               ng-class="{'has-error': ($ctrl.settingsForm.$submitted || $ctrl.settingsForm['cephClusterKeyringFilePath'].$dirty) && $ctrl.settingsForm['cephClusterKeyringFilePath'].$invalid}">
+            <label class="col-sm-3 control-label"
+                   for="cephClusterKeyringFilePath">密钥环文件</label>
+            <div class="col-sm-9">
+              <input type="text"
+                     class="form-control"
+                     name="cephClusterKeyringFilePath"
+                     id="cephClusterKeyringFilePath"
+                     ng-model="cephCluster.keyring_file_path"
+                     autocomplete="off"
+                     uib-typeahead="file for file in $ctrl.getKeyringFileTypeahead(cephCluster.fsid)"
+                     typeahead-focus-first="false"
+                     ng-change="$ctrl.checkCephConnection(cephCluster)"
+                     typeahead-on-select="$ctrl.checkCephConnection(cephCluster)"
+                     required>
+              <span class="help-block tc_cephClusterKeyringFilePathRequired"
+                    ng-show="($ctrl.settingsForm.$submitted || $ctrl.settingsForm['cephClusterKeyringFilePath'].$dirty) && $ctrl.settingsForm['cephClusterKeyringFilePath'].$error.required">
+                必填项
+              </span>
+            </div>
+          </div>
+
+          <!--  Ceph Cluster Keyring User -->
+          <div class="form-group"
+               ng-class="{'has-error': ($ctrl.settingsForm.$submitted || $ctrl.settingsForm['cephClusterKeyringUser'].$dirty) && $ctrl.settingsForm['cephClusterKeyringUser'].$invalid}">
+            <label class="col-sm-3 control-label"
+                   for="cephClusterKeyringUser">密钥环用户</label>
+            <div class="col-sm-9">
+              <input type="text"
+                     class="form-control"
+                     name="cephClusterKeyringUser"
+                     id="cephClusterKeyringUser"
+                     ng-model="cephCluster.keyring_user"
+                     autocomplete="off"
+                     uib-typeahead="user for user in $ctrl.getKeyringUserTypeahead(cephCluster.fsid, cephCluster.keyring_file_path)"
+            
+                     typeahead-focus-first="false"
+                     ng-change="$ctrl.checkCephConnection(cephCluster)"
+                     typeahead-on-select="$ctrl.checkCephConnection(cephCluster)"
+                     required>
+              <span class="help-block tc_cephClusterKeyringUserRequired"
+                    ng-show="($ctrl.settingsForm.$submitted || $ctrl.settingsForm['cephClusterKeyringUser'].$dirty) && $ctrl.settingsForm['cephClusterKeyringUser'].$error.required">
+                必填项
+              </span>
+            </div>
+          </div>
+
+          <div class="pull-right">
+            <span ng-if="$ctrl.cephConnectionStatus.loading">
+              <i class="fa fa-fw fa-spinner fa-spin"
+                 aria-hidden="true"></i>检查连接中
+            </span>
+            <span class="text-success tc_cephConnectionSuccess"
+                  ng-show="$ctrl.cephConnectionStatus.success === true">
+              <i class="fa fa-fw fa-check"
+                 aria-hidden="true"></i>Ceph连接成功建立
+            </span>
+            <span class="text-danger tc_cephConnectionFail"
+                  ng-show="$ctrl.cephConnectionStatus.success === false">
+              <i class="fa fa-fw fa-times"
+                 aria-hidden="true"></i>Ceph连接失败
+            </span>
+          </div>
+          <br>
+          <div class="pull-right">
+            <span class="text-muted"
+                  ng-if="$ctrl.cephConnectionStatus.message">
+              {{ $ctrl.cephConnectionStatus.message }} -
+              <a ng-click="$ctrl.checkCephConnection(cephCluster)">重试</a>
+            </span>
+            <span ng-if="!$ctrl.cephConnectionStatus.message">&nbsp;</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="panel-footer">
+        <div class="button-group text-right">
+          <oa-submit-button form="$ctrl.settingsForm"
+                            on-submit="$ctrl.saveAction()">
+            保存
+          </oa-submit-button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="row">
+  <div class="col-sm-12">
+    <div class="page-footer"
+         ng-if="$ctrl.openatticVersion">
+      <hr>
+    </div>
+  </div>
+</div>

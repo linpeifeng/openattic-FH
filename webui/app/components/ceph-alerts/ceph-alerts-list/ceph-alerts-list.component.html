@@ -1,0 +1,54 @@
+<style>
+.MAJOR{color:#FFCC00}
+.MINOR{color:#0066FF}
+.CRITICAL{color:#FF0000}
+.dataTables_header .input-group{display:none;} 
+</style>
+      <oadatatable data="$ctrl.alerts"
+                   class="oadatatable"
+                   filter-config="$ctrl.filterConfig"
+                   special="$ctrl"
+                   selection="$ctrl.selection"
+                   on-filter-config-change="$ctrl.getAlertsList()">
+        
+        <additional-actions>
+          <button class="btn btn-sm btn-default btn-label"
+                  type="button"
+                  ng-click="$ctrl.snmpAction()">
+            <i class="fa fa-fw fa-cog"
+               aria-hidden="true"></i>Configure SNMP
+          </button>
+        </additional-actions>
+        
+        <table class="table table-striped table-bordered table-hover dataTable datatable">
+          <thead>
+            <tr>
+              <th ng-show="columns['Date & Time']"
+                  sortfield="time"
+                  sortdir="asc"
+                  sortheaderclass
+                  sortdefault>Date & Time</th>
+              <th ng-show="columns['Level']"
+              	  sortfield="level"
+                  sortheaderclass>Level</th>
+              <th ng-show="columns['Location']">Location</th>
+              <th ng-show="columns['Alert Details']">Alert Details</th>
+            </tr>
+          </thead>
+          
+          <tbody>
+            <tr ng-repeat="row in data.results">
+              <td ng-show="columns['Date & Time']"
+                  ng-bind="row.time | localeDate"></td>
+              <td ng-show="columns['Level']"
+                  ng-bind-html="row.level | cephAlertsLevelFilter"
+                  ></td>
+              <td ng-show="columns['Location']"
+              	  ng-bind="row.location">
+              </td>
+              <td ng-show="columns['Alert Details']"
+                  ng-bind="row.details"></td>
+            </tr>
+          </tbody>
+        </table>
+      </oadatatable>

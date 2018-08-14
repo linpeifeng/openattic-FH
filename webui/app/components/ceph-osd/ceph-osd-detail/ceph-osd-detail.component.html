@@ -1,0 +1,24 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Details of {{$ctrl.selection.item.name}}</h3>
+  </div>
+  <div class="panel-body">
+    <dl class="dl-horizontal" ng-if="$ctrl.selection.StatusSuccess">
+      <dt>WWN:</dt>
+      <dd ng-bind="$ctrl.selection.info.wwn"></dd>
+      <dt>Hostname:</dt>
+      <dd ng-bind="$ctrl.selection.info.hostname"></dd>
+      <dt>OSD Name:</dt>
+      <dd ng-bind="$ctrl.selection.info.osd"></dd>
+      <dt>Drive ID:</dt>
+      <dd ng-bind="$ctrl.selection.info.disk"></dd>
+      <dt>Solt:</dt>
+      <dd ng-bind="$ctrl.selection.info.solt"></dd>
+      <!-- <dt>Last Roaming Status:</dt>
+      <dd ng-bind="$ctrl.selection.info.otherinfo"></dd> -->
+    </dl>
+    <dl class="dl-horizontal" ng-if="$ctrl.selection.StatusError" style="text-align: center; margin-top:20px;">
+      <span>Disk not found</span>
+    </dl>
+  </div>
+</div>

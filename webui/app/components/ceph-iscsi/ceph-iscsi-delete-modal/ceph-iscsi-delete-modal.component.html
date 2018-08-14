@@ -1,0 +1,21 @@
+<oa-delete-confirmation-modal title="{{ ($ctrl.resolve.iscsiTargetSelection.length > 1) ? '删除iSCSI目标限定名' : '删除iSCSI目标限定名' }}"
+                              on-confirm="$ctrl.delete()"
+                              on-cancel="$ctrl.cancel()">
+
+  <div ng-if="$ctrl.resolve.iscsiTargetSelection.length === 1">
+    <p>
+       您正在删除iSCSI目标限定名:<strong>{{$ctrl.resolve.iscsiTargetSelection[0].targetId}}</strong>。
+    </p>
+  </div>
+  <div ng-if="$ctrl.resolve.iscsiTargetSelection.length > 1">
+    <p>
+       您正在删除多个iSCSI目标限定名。
+    </p>
+    <span class="text-danger">以下的iSCSI目标限定名将被删除:</span>
+    <ul class="text-danger">
+      <li ng-repeat="iscsiTarget in $ctrl.resolve.iscsiTargetSelection">
+        {{iscsiTarget.targetId}}
+      </li>
+    </ul>
+  </div>
+</oa-delete-confirmation-modal>

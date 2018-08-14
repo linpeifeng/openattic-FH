@@ -1,0 +1,121 @@
+<nav class="navbar navbar-default navbar-openattic">
+  <!-- Brand and toggle get grouped for better mobile display -->
+
+  <div class="navbar-header tc_logo_component">
+    <a class="navbar-brand"
+       href="#">
+      <img src="images/suse_brand_bright.png"
+           alt="Ceph Storage">
+    </a>
+    <!--<a class="navbar-brand" href="#">openATTIC storage management framework</a>-->
+
+    <button type="button"
+            class="navbar-toggle collapsed"
+            data-toggle="collapse"
+            data-target="#bs-example-navbar-collapse-1">
+      <span class="sr-only">切换导航 </span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+  </div>
+
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse"
+       id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav navbar-primary">
+      <li data-ui-sref-active="active"
+          class="tc_menuitem tc_menuitem_dashboard">
+        <a data-ui-sref="dashboard"
+           title="Dashboard">仪表盘</a>
+      </li>
+      <li data-ui-sref-active="active"
+          class="tc_menuitem tc_menuitem_ceph_osds">
+        <a data-ui-sref="cephOsds">OSD</a>
+      </li>
+      <li data-ui-sref-active="active"
+          class="tc_menuitem tc_menuitem_ceph_rbds">
+        <a data-ui-sref="cephRbds">RBD</a>
+      </li>
+      <li data-ui-sref-active="active"
+          class="tc_menuitem tc_menuitem_ceph_pools">
+        <a data-ui-sref="cephPools">存储池</a>
+      </li>
+      <li data-ui-sref-active="active"
+          class="tc_menuitem tc_menuitem_ceph_nodes">
+        <a data-ui-sref="cephNodes">节点</a>
+      </li>
+      <li data-ui-sref-active="active"
+          class="tc_menuitem tc_menuitem_ceph_iscsi">
+        <a data-ui-sref="cephIscsi">iSCSI</a>
+      </li>
+      <li data-ui-sref-active="active"
+          class="tc_menuitem tc_menuitem_ceph_nfs">
+        <a data-ui-sref="cephNfs">NFS</a>
+      </li>
+      <li class="dropdown tc_menuitem tc_menuitem_ceph_rgw">
+        <a href=""
+           class="dropdown-toggle"
+           data-toggle="dropdown">对象网关
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li data-ui-sref-active="active"
+              class="tc_submenuitem tc_submenuitem_ceph_rgw_users">
+            <a data-ui-sref="ceph-rgw-users">用户</a>
+          </li>
+          <li data-ui-sref-active="active"
+              class="tc_submenuitem tc_submenuitem_ceph_rgw_buckets">
+            <a data-ui-sref="ceph-rgw-buckets">Buckets</a>
+          </li>
+        </ul>
+      </li>
+      <li data-ui-sref-active="active"
+          class="tc_menuitem tc_menuitem_ceph_crushmap">
+        <a data-ui-sref="crushmap">CRUSH 图</a>
+      </li>
+      <li class="dropdown tc_menuitem tc_menuitem_system">
+        <a href=""
+           class="dropdown-toggle"
+           data-toggle="dropdown">系统配置
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li data-ui-sref-active="active"
+              class="tc_submenuitem tc_submenuitem_system_users">
+            <a data-ui-sref="users">用户</a>
+          </li>
+          <li data-ui-sref-active="active"
+              class="tc_submenuitem tc_submenuitem_system_settings">
+            <a data-ui-sref="settings">设置</a>
+          </li>
+          <li data-ui-sref-active="active"
+              class="tc_submenuitem tc_submenuitem_system_ceph_log">
+            <a data-ui-sref="ceph-log">日志</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <!-- /.navbar-primary -->
+
+    <ul class="nav navbar-nav navbar-utility">
+      <li>
+        <oa-notifications class="oa-navbar dropdown dropdown-notifications"></oa-notifications>
+      </li>
+      <li>
+        <oa-task-queue class="oa-navbar"></oa-task-queue>
+      </li>
+      <li>
+        <userinfo class="oa-navbar"></userinfo>
+      </li>
+      <li class="tc_api-recorder">
+        <api-recorder class="oa-navbar"></api-recorder>
+      </li>
+      <li class="tc_logout">
+        <auth-logout class="oa-navbar"></auth-logout>
+      </li>
+    </ul>
+    <!-- /.navbar-utility -->
+  </div>
+  <!-- /.navbar-collapse -->
+</nav>

@@ -1,0 +1,35 @@
+<div class="openattic-modal-header">
+  <span>删除纠删码配置</span>
+</div>
+
+<div class="openattic-modal-content">
+  <p>
+    您正在删除纠删码配置
+    <strong>{{$ctrl.profile.name}}</strong>.
+  </p>
+
+  <p>
+    点击<kbd>删除纠删码配置</kbd>确认删除，点击取消则返回之前的页面。
+  </p>
+</div>
+
+<div class="openattic-modal-footer">
+  <form name="deleteForm"
+        role="form">
+    <div class="button-group text-right">
+      <button id="bot2-Msg1"
+              class="btn btn-primary btn-sm"
+              ng-click="$ctrl.deleteErasureCodeProfile()"
+              ng-disabled="$ctrl.deleteForm.$invalid || $ctrl.deleteForm.$submitted"
+              autofocus>
+       删除纠删码配置
+        <i class="fa fa-spinner fa-spin fa-fw"
+           ng-if="$ctrl.deleteForm.$submitted"></i>
+      </button>
+      <button id="bot1-Msg1"
+              class="btn btn-link btn-sm"
+              ng-click="$ctrl.cancel()">取消
+      </button>
+    </div>
+  </form>
+</div>

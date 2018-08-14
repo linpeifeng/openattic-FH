@@ -1,0 +1,14 @@
+[Unit]
+Description=Set RBD IOPS Systemd Service
+After=network.target remote-fs.target nss-lookup.target
+
+[Service]
+Environment=PYTHONPATH=/usr/share/openattic/
+Type=simple
+Restart=always
+ExecStart=/usr/bin/python2.7 /usr/share/openattic/alerts/setiops.py &> /dev/null &
+ExecReload=/usr/bin/sh /usr/share/openattic/alerts/alertser.sh iopsrestart
+ExecStop=/usr/bin/sh /usr/share/openattic/alerts/alertser.sh iopsstop
+
+[Install]
+WantedBy=multi-user.target

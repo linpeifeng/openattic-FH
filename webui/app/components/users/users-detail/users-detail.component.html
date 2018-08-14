@@ -1,0 +1,43 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title tc_panelTitle">Details of {{ $ctrl.selection.item.username }}</h3>
+  </div>
+  <div class="panel-body">
+    <dl class="dl-horizontal">
+      <dt>Role:</dt>
+      <dd ng-bind="$ctrl.selection.item.is_superuser?'Super User':'User'"></dd>
+      <dt>Privileges:</dt>
+      <dd ng-if="$ctrl.selection.item.is_superuser">
+      	All
+      </dd>
+      <dd ng-if="!$ctrl.selection.item.is_superuser">
+      	<table style="table-layout:fixed; width:80%;">
+      		<tr>
+      			<td style="width:60px; height:30px; font-weight:bold;">Pools</td>
+      			<td>Add-<span ng-bind="$ctrl.inArray('ceph.add_cephpool',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      			<td>Edit-<span ng-bind="$ctrl.inArray('ceph.change_cephpool',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      			<td>Delete-<span ng-bind="$ctrl.inArray('ceph.delete_cephpool',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      		</tr>
+      		<tr>
+      			<td style="width:60px; height:30px; font-weight:bold;">RBDs</td>
+      			<td>Add-<span ng-bind="$ctrl.inArray('ceph.add_cephrbd',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      			<td>Edit-<span ng-bind="$ctrl.inArray('ceph.change_cephrbd',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      			<td>Delete-<span ng-bind="$ctrl.inArray('ceph.delete_cephrbd',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      		</tr>
+      		<tr>
+      			<td style="width:60px; height:30px; font-weight:bold;">iSCSI</td>
+      			<td>Add-<span ng-bind="$ctrl.inArray('ceph_iscsi.add_iscsiinterface',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      			<td>Edit-<span ng-bind="$ctrl.inArray('ceph_iscsi.change_iscsiinterface',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      			<td>Delete-<span ng-bind="$ctrl.inArray('ceph_iscsi.delete_iscsiinterface',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      		</tr>
+      		<tr>
+      			<td style="width:60px; height:30px; font-weight:bold;">NFS</td>
+      			<td>Add-<span ng-bind="$ctrl.inArray('ceph_nfs.add_ganeshaexport',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      			<td>Edit-<span ng-bind="$ctrl.inArray('ceph_nfs.change_ganeshaexport',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      			<td>Delete-<span ng-bind="$ctrl.inArray('ceph_nfs.delete_ganeshaexport',$ctrl.selection.item.user_permissions.user_permissions)?'Yes':'No'"></span></td>
+      		</tr>
+      	</table>
+      </dd>
+    </dl>
+  </div>
+</div>

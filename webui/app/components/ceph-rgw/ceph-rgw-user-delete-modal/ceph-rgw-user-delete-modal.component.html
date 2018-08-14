@@ -1,0 +1,32 @@
+<oa-delete-confirmation-modal on-confirm="$ctrl.deleteUser()"
+                              on-cancel="$ctrl.cancel()"
+                              title="{{ ($ctrl.users.length > 1) ? '删除用户' : '删除用户' }}">
+  <!-- single user -->
+  <div ng-if="$ctrl.users.length === 1">
+    <p>
+      您正在删除用户: <strong>{{$ctrl.users[0].user_id}}</strong>。
+    </p>
+    <p>
+      注意：当前用户的<strong>所有对象网关buckets均将丢失</strong>且操作<strong>不可撤销</strong>。
+    </p>
+  </div>
+  <!-- end single user -->
+
+  <!-- multiple users -->
+  <div ng-if="$ctrl.users.length > 1">
+    <p>
+           您正在删除多个用户。
+
+    </p>
+    <p>
+       注意：这些用户的<strong>所有对象网关buckets均将丢失</strong>且操作<strong>不可撤销</strong>。
+    </p>
+    <span class="text-danger">以下用户将被删除:</span>
+      <ul class="text-danger">
+        <li ng-repeat="user in $ctrl.users | orderBy:'+user_id'">
+          {{user.user_id}}
+        </li>
+      </ul>
+  </div>
+  <!-- end multiple users -->
+</oa-delete-confirmation-modal>

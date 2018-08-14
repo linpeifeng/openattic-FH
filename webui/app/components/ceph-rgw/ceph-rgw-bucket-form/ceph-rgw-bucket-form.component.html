@@ -1,0 +1,111 @@
+<oa-loading-panel message="bucket 数据加载中..."
+                  ng-show="!$ctrl.error && !$ctrl.formDataIsReady">
+</oa-loading-panel>
+<oa-error-panel on-back="$ctrl.goToListView()"
+                ng-if="$ctrl.editing && $ctrl.error">
+  bucket数据无法加载。
+</oa-error-panel>
+
+<div class="col-sm-12 col-lg-6">
+  <form name="bucketForm"
+        role="form"
+        class="form-horizontal"
+        ng-show="!$ctrl.error && $ctrl.formDataIsReady"
+        novalidate
+        oa-check-form>
+    <div class="panel panel-default">
+      <div class="panel-heading tc_formHeadline">
+        <h3 ng-hide="$ctrl.editing"
+            class="panel-title tc_bucketAddTitle">添加 bucket: {{$ctrl.bucket.bucket}}</h3>
+        <h3 ng-show="$ctrl.editing"
+            class="panel-title tc_bucketEditTitle">编辑 bucket: {{$ctrl.bucket.bucket}}</h3>
+      </div>
+      <div class="panel-body">
+        <!-- Name -->
+        <div class="form-group"
+             ng-class="{'has-error': (bucketForm.$submitted || bucketForm.bucket.$dirty) &&
+                         bucketForm.bucket.$invalid}">
+          <label class="col-sm-3 control-label"
+                 for="bucket">名称</label>
+          <div class="col-sm-9">
+            <input class="form-control"
+                   type="text"
+                   placeholder="名称..."
+                   ng-model="$ctrl.bucket.bucket"
+                   ng-readonly="$ctrl.editing"
+                   ng-required="!$ctrl.editing"
+                   name="bucket"
+                   id="bucket"
+                   autofocus
+                   ceph-rgw-bucket-name-validate
+                   ceph-rgw-bucket-name-unique>
+            <span class="help-block tc_bucketRequired"
+                  ng-show="(bucketForm.$submitted || bucketForm.bucket.$dirty) &&
+                                  bucketForm.bucket.$error.required">
+              必填项!
+            </span>
+            <span class="help-block tc_bucketNotUnique"
+                  ng-show="(bucketForm.$submitted || bucketForm.bucket.$dirty) &&
+                                  bucketForm.bucket.$error.cephRgwBucketNameUnique">
+              所选名称已经被使用。
+            </span>
+            <span class="help-block tc_bucketInvalid"
+                  ng-show="(bucketForm.$submitted || bucketForm.bucket.$dirty) &&
+                                bucketForm.bucket.$error.cephRgwBucketNameValidate">
+输入值无效。            </span>
+          </div>
+        </div>
+        <!-- Id -->
+        <div class="form-group"
+             ng-show="$ctrl.editing">
+          <label class="col-sm-3 control-label"
+                 for="id">Id</label>
+          <div class="col-sm-9">
+            <input class="form-control"
+                   type="text"
+                   ng-model="$ctrl.bucket.id"
+                   readonly>
+          </div>
+        </div>
+        <!-- Owner -->
+        <div class="form-group"
+             ng-class="{'has-error': (bucketForm.$submitted || bucketForm.owner.$dirty) && bucketForm.owner.$invalid}">
+          <label class="col-sm-3 control-label"
+                 for="owner">所有人</label>
+          <div class="col-sm-9">
+            <div class="input-group">
+              <span class="input-group-addon">
+                <i class="icon-prepend fa fa-user"></i>
+              </span>
+              <select class="form-control"
+                      ng-model="$ctrl.bucket.owner"
+                      ng-options="owner for owner in $ctrl.owners"
+                      name="owner"
+                      id="owner"
+                      required>
+                <option value="">-- 选择一个用户 --</option>
+              </select>
+            </div>
+            <span class="help-block tc_ownerRequired"
+                  ng-show="(bucketForm.$submitted || bucketForm.owner.$dirty) && bucketForm.owner.$error.required">
+              必填项!
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <div class="button-group text-right">
+          <oa-submit-button form="bucketForm"
+                            on-submit="$ctrl.submitAction(bucketForm)">
+            提交
+          </oa-submit-button>
+          <button type="button"
+                  class="btn btn-sm btn-default tc_backButton"
+                  ng-click="$ctrl.goToListView()">
+            返回
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

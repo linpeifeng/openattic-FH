@@ -1,0 +1,44 @@
+--- /home/fong/Downloads/iso/ses-src/openattic-ses5-3.6.1/webui/app/components/users/users-list/users-list.component.html	2017-12-14 00:27:15.000000000 +0800
++++ app/components/users/users-list/users-list.component.html	2018-04-18 21:42:24.000000000 +0800
+@@ -9,16 +9,17 @@
+     <a class="btn btn-sm btn-primary tc_addUser"
+        type="button"
+        ng-click="$ctrl.addAction()"
+-       ng-hide="$ctrl.hasSelection">
++       ng-hide="$ctrl.hasSelection || !$ctrl.user.is_superuser">
+       <i class="fa fa-fw fa-plus"></i>Add
+     </a>
+     <a class="btn btn-sm btn-primary tc_editUser"
+        type="button"
+        ng-click="$ctrl.editAction()"
+-       ng-show="$ctrl.hasSelection">
++       ng-hide="$ctrl.user.is_superuser && !$ctrl.hasSelection"
++       ng-class="{disabled: !$ctrl.user.is_superuser && !$ctrl.hasSelection}">
+       <i class="fa fa-fw fa-pencil"></i>Edit
+     </a>
+-    <li>
++    <li ng-hide="!$ctrl.user.is_superuser">
+       <a ng-click="$ctrl.addAction()">
+         <i class="fa fa-fw fa-plus"></i>Add
+       </a>
+@@ -62,9 +63,6 @@
+         <th sortfield="is_active"
+             sortheaderclass
+             ng-show="columns['Active']">Active</th>
+-        <th sortfield="is_staff"
+-            sortheaderclass
+-            ng-show="columns['Is administrator']">Is administrator</th>
+         <th sortfield="is_superuser"
+             sortheaderclass
+             ng-show="columns['Has all privileges']">Has all privileges</th>
+@@ -97,10 +95,6 @@
+           <i class="fa fa-check fa-fw"
+              ng-show="row.is_active"></i>
+         </td>
+-        <td ng-show="columns['Is administrator']">
+-          <i class="fa fa-check fa-fw"
+-             ng-show="row.is_staff"></i>
+-        </td>
+         <td ng-show="columns['Has all privileges']">
+           <i class="fa fa-check fa-fw"
+              ng-show="row.is_superuser"></i>

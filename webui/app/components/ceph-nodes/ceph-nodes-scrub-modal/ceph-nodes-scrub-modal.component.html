@@ -1,0 +1,46 @@
+<div class="openattic-modal-header">
+  <span>Ceph 节点 {{$ctrl.resolve.deep ? 'Deep ' : ''}}Scrub</span>
+</div>
+
+<form name="$ctrl.form"
+      role="form"
+      novalidate>
+  <div class="openattic-modal-content">
+    <!-- single cephMNode -->
+    <div ng-if="$ctrl.resolve.cephNodes.length === 1">
+      <p>
+        为Ceph节点 <strong>{{$ctrl.resolve.cephNodes[0].hostname}} 启用 {{$ctrl.resolve.deep ? 'deep ' : ''}}scrub </strong>。
+      </p>
+    </div>
+    <!-- end single cephMNode -->
+
+    <!-- multiple cephMNodes -->
+    <div ng-if="$ctrl.resolve.cephNodes.length > 1">
+      <p>
+        为多个Ceph节点启用{{$ctrl.resolve.deep ? 'deep ' : ''}}scrub。
+      </p>
+      <span>以下的Ceph节点将启用{{$ctrl.resolve.deep ? 'deep ' : ''}}scrub:</span>
+      <ul>
+        <li ng-repeat="cephNode in $ctrl.resolve.cephNodes">
+          {{cephNode.hostname}}
+        </li>
+      </ul>
+    </div>
+    <!-- end multiple cephMNodes -->
+  </div>
+
+  <div class="openattic-modal-footer">
+    <div class="button-group text-right">
+      <oa-submit-button form="$ctrl.form"
+                        on-submit="$ctrl.scrub()">
+        提交
+      </oa-submit-button>
+
+      <button id="cancelButton"
+              class="btn btn-link btn-sm"
+              ng-click="$ctrl.cancel()">
+        取消
+      </button>
+    </div>
+  </div>
+</form>

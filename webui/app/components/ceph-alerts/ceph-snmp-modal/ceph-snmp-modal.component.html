@@ -1,0 +1,286 @@
+<style>
+.left-label{padding-right:0;}
+.gray-text{color:rgb(153, 153, 153);}
+.input-tip{padding-left:5px; color:rgb(153, 153, 153);}
+</style>
+<form name="snmpForm"
+      role="form"
+      class="form-horizontal"
+      novalidate>
+  <div class="openattic-modal-header">
+    <span>
+      Configure SNMP
+    </span>
+  </div>
+
+  <div class="openattic-modal-content">
+  	<div style="font-weight:bold;">
+  		<label class="checkbox-inline"><input 
+  		ng-model="$ctrl.snmp.enabled" 
+  		name="enabled" 
+  		value="true"
+  		type="checkbox"/>Enable SNMP TRAP</label>
+	</div>
+  	<div class="gray-text" ng-show="!$ctrl.snmp.enabled" style="margin-top:10px;">You need to ENABLE SNMP TRAP to load more configurations.</div>
+	<div ng-show="$ctrl.snmp.enabled">
+	  <div class="form-group">
+	    <label class="col-sm-3 control-label left-label">NMS IP : Port:</label>
+	    <div class="col-sm-9">
+	      <div><input 
+	      	class="form-control"
+	      	ng-class="{'has-error': (snmpForm.$submitted || snmpForm.snmp_serverip.$dirty) && snmpForm.snmp_serverip.$invalid}"
+	      	style="display:inline-block; width:170px;" 
+	      	ng-model="$ctrl.snmp.snmp_serverip"
+	      	name="snmp_serverip" 
+	      	ng-required="$ctrl.snmp.enabled"
+	      	ng-pattern="/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/"
+	      	type="text" /><span style="padding:0 3px">:</span><input 
+	      	class="form-control"
+	      	ng-class="{'has-error': (snmpForm.$submitted || snmpForm.snmp_serverport.$dirty) && snmpForm.snmp_serverport.$invalid}"
+	      	style="display:inline-block; width:71px;" 
+	      	ng-model="$ctrl.snmp.snmp_serverport"
+	      	name="snmp_serverport" 
+	      	ng-required="$ctrl.snmp.enabled"
+	      	min="1" 
+	      	type="number"/><span class="input-tip">Default: 162</span></div>
+		  <span class="help-block"
+	            ng-show="(snmpForm.$submitted || snmpForm.snmp_serverip.$dirty) &&
+	                                snmpForm.snmp_serverip.$error.required">
+	        The NMS IP is required.
+	      </span>
+	      <span class="help-block"
+	            ng-show="(snmpForm.$submitted || snmpForm.snmp_serverip.$dirty) &&
+	                                snmpForm.snmp_serverip.$error.pattern">
+	        Not a valid IP!.
+	      </span>
+	      <span class="help-block"
+	            ng-show="(snmpForm.$submitted || snmpForm.snmp_serverport.$dirty) &&
+	                                snmpForm.snmp_serverport.$error.required">
+	        The NMS Port is required.
+	      </span>
+	    </div>
+	  </div>
+	  
+	  <div class="form-group" style="padding-bottom:15px; border-bottom:1px solid rgb(224,234,234)">
+	    <label class="col-sm-3 control-label left-label">Version:</label>
+	    <div class="col-sm-9">
+	      <label class="radio-inline"><input 
+	      	ng-model="$ctrl.snmp.snmp_version" 
+	  		name="snmp_version" 
+	  		value="0"
+	      	type="radio"/>SNMP v2c</label>&nbsp;&nbsp;&nbsp;<label class="radio-inline"><input 
+	      	ng-model="$ctrl.snmp.snmp_version" 
+	  		name="snmp_version" 
+	  		value="1"
+	      	type="radio"/>SNMP v3</label>
+	    </div>
+	  </div>
+	  
+	  <fieldset>
+	  	<div ng-show="$ctrl.snmp.snmp_version=='0'">
+			  <div class="form-group">
+			    <label class="col-sm-3 control-label left-label">Community String:</label>
+			    <div class="col-sm-9">
+			      <div><input 
+			      	class="form-control"
+			      	ng-class="{'has-error': (snmpForm.$submitted || snmpForm.community_str.$dirty) && snmpForm.community_str.$invalid}"
+	      			style="display:inline-block; width:250px;" 
+			      	ng-model="$ctrl.snmp.community_str"
+			      	name="community_str" 
+			      	ng-required="$ctrl.snmp.enabled && $ctrl.snmp.snmp_version=='0'"
+			      	minlength="1"
+			      	maxlength="31"
+			      	type="text" /><span class="input-tip">1 to 31 characters</span></div>
+			      <span class="help-block"
+			            ng-show="(snmpForm.$submitted || snmpForm.community_str.$dirty) &&
+			                                snmpForm.community_str.$error.required">
+			        The Community String is required.
+			      </span>
+			      <span class="help-block"
+	                    ng-show="(snmpForm.$submitted || snmpForm.community_str.$dirty) && snmpForm.community_str.$error.minlength">
+	                The Community String must be of minimum length 1 characters.
+	              </span>
+	              <span class="help-block"
+	                    ng-show="(snmpForm.$submitted || snmpForm.community_str.$dirty) && snmpForm.community_str.$error.maxlength">
+	                The Community String must be of maximum length 31 characters.
+	              </span>
+			    </div>
+			  </div>
+	  	</div>
+		
+		<div ng-show="$ctrl.snmp.snmp_version=='1'">
+		  <!--  
+		  <div class="form-group">
+		    <label class="col-sm-3 control-label left-label">Engine ID:</label>
+		    <div class="col-sm-9">
+		      <div><input 
+		      	class="form-control"
+		      	ng-class="{'has-error': (snmpForm.$submitted || snmpForm.engineid.$dirty) && snmpForm.engineid.$invalid}"
+	      		style="display:inline-block; width:250px;" 
+		      	ng-model="$ctrl.snmp.engineid"
+		      	name="engineid"
+		      	ng-required="$ctrl.snmp.enabled && $ctrl.snmp.snmp_version=='1'"
+		      	minlength="10"
+			    maxlength="64"
+		      	type="text" /><span class="input-tip">10 to 64 characters</span></div>
+		      <span class="help-block"
+		            ng-show="(snmpForm.$submitted || snmpForm.engineid.$dirty) &&
+		                                snmpForm.engineid.$error.required">
+		        The Engine ID is required.
+		      </span>
+		      <span class="help-block"
+                    ng-show="(snmpForm.$submitted || snmpForm.engineid.$dirty) && snmpForm.engineid.$error.minlength">
+                The Engine ID must be of minimum length 10 characters.
+              </span>
+              <span class="help-block"
+                    ng-show="(snmpForm.$submitted || snmpForm.engineid.$dirty) && snmpForm.engineid.$error.maxlength">
+                The Engine ID must be of maximum length 64 characters.
+              </span>
+		    </div>
+		  </div>
+		  -->
+		  <div class="form-group">
+		    <label class="col-sm-3 control-label left-label">Username:</label>
+		    <div class="col-sm-9">
+		      <div><input 
+		      	class="form-control"
+		      	ng-class="{'has-error': (snmpForm.$submitted || snmpForm.authuser.$dirty) && snmpForm.authuser.$invalid}"
+	      		style="display:inline-block; width:250px;"
+		      	ng-model="$ctrl.snmp.authuser"
+		      	name="authuser"
+		      	ng-required="$ctrl.snmp.enabled && $ctrl.snmp.snmp_version=='1'"
+		      	minlength="1"
+			    maxlength="31"
+		      	type="text" /><span class="input-tip">1 to 31 characters</span></div>
+		      <span class="help-block"
+		            ng-show="(snmpForm.$submitted || snmpForm.authuser.$dirty) &&
+		                                snmpForm.authuser.$error.required">
+		        The Username is required.
+		      </span>
+		      <span class="help-block"
+                    ng-show="(snmpForm.$submitted || snmpForm.authuser.$dirty) && snmpForm.authuser.$error.minlength">
+                The Username must be of minimum length 1 characters.
+              </span>
+              <span class="help-block"
+                    ng-show="(snmpForm.$submitted || snmpForm.authuser.$dirty) && snmpForm.authuser.$error.maxlength">
+                The Username must be of maximum length 31 characters.
+              </span>
+		    </div>
+		  </div>
+		  
+		  <div class="form-group">
+		    <label class="col-sm-3 control-label left-label">Security Level:</label>
+		    <div class="col-sm-9">
+		      <label class="radio-inline"><input 
+		      	ng-model="$ctrl.snmp.authmeth" 
+		  		name="authmeth" 
+		  		value="noAuthNoPriv"
+		      	type="radio"/>NoAuthNoPriv</label>&nbsp;&nbsp;&nbsp;<label class="radio-inline"><input 
+		      	ng-model="$ctrl.snmp.authmeth" 
+		  		name="authmeth" 
+		  		value="authNoPriv"
+		      	type="radio"/>AuthNoPriv</label>&nbsp;&nbsp;&nbsp;<label class="radio-inline"><input 
+		      	ng-model="$ctrl.snmp.authmeth" 
+		  		name="authmeth" 
+		  		value="authPriv"
+		      	type="radio"/>AuthPriv</label>
+		    </div>
+		  </div>
+		  
+		  <div class="form-group">
+		    <label class="col-sm-3 control-label left-label">Authentication:</label>
+		    <div class="col-sm-9">
+		      <div><select 
+		      	class="form-control"
+		      	ng-class="{'has-error': (snmpForm.$submitted || snmpForm.authprotocol.$dirty) && snmpForm.authprotocol.$invalid}"
+	      		style="display:inline-block; width:80px;"
+		      	ng-model="$ctrl.snmp.authprotocol"
+		      	ng-disabled="$ctrl.snmp.authmeth=='noAuthNoPriv'"
+		      	name="authprotocol">
+		      	<option value="MD5">MD5</option>
+		      	<option value="SHA">SHA</option>
+		      </select>
+		      <input 
+		      	class="form-control"
+		      	ng-class="{'has-error': (snmpForm.$submitted || snmpForm.authpasswd.$dirty) && snmpForm.authpasswd.$invalid}"
+	      		style="display:inline-block; width:170px;"
+		      	ng-model="$ctrl.snmp.authpasswd"
+		      	ng-disabled="$ctrl.snmp.authmeth=='noAuthNoPriv'"
+		      	name="authpasswd"
+		      	ng-required="$ctrl.snmp.enabled && $ctrl.snmp.snmp_version=='1' && $ctrl.snmp.authmeth!='noAuthNoPriv'"
+		      	minlength="8"
+			    maxlength="40"
+		      	type="text" /><span class="input-tip">8 to 40 characters</span></div>
+		      <span class="help-block"
+		            ng-show="(snmpForm.$submitted || snmpForm.authpasswd.$dirty) &&
+		                                snmpForm.authpasswd.$error.required">
+		        The Authentication Password is required.
+		      </span>
+		      <span class="help-block"
+                    ng-show="(snmpForm.$submitted || snmpForm.authpasswd.$dirty) && snmpForm.authpasswd.$error.minlength">
+                The Authentication Password must be of minimum length 8 characters.
+              </span>
+              <span class="help-block"
+                    ng-show="(snmpForm.$submitted || snmpForm.authpasswd.$dirty) && snmpForm.authpasswd.$error.maxlength">
+                The Authentication Password must be of maximum length 40 characters.
+              </span>
+		    </div>
+		  </div>
+		  
+		  <div class="form-group">
+		    <label class="col-sm-3 control-label left-label">Privacy Password:</label>
+		    <div class="col-sm-9">
+		      <div><select 
+		      	class="form-control"
+		      	ng-class="{'has-error': (snmpForm.$submitted || snmpForm.privprotocol.$dirty) && snmpForm.privprotocol.$invalid}"
+	      		style="display:inline-block; width:80px;"
+		      	ng-model="$ctrl.snmp.privprotocol"
+		      	ng-disabled="$ctrl.snmp.authmeth=='noAuthNoPriv' || $ctrl.snmp.authmeth=='authNoPriv'"
+		      	name="privprotocol">
+		      	<option value="AES">AES</option>
+		      	<option value="DES">DES</option>
+		      </select>
+		      <input 
+		      	class="form-control"
+		      	ng-class="{'has-error': (snmpForm.$submitted || snmpForm.privpasswd.$dirty) && snmpForm.privpasswd.$invalid}"
+	      		style="display:inline-block; width:170px;"
+		      	ng-model="$ctrl.snmp.privpasswd"
+		      	ng-disabled="$ctrl.snmp.authmeth=='noAuthNoPriv' || $ctrl.snmp.authmeth=='authNoPriv'"
+		      	name="privpasswd"
+		      	ng-required="$ctrl.snmp.enabled && $ctrl.snmp.snmp_version=='1' && !($ctrl.snmp.authmeth=='noAuthNoPriv' || $ctrl.snmp.authmeth=='authNoPriv')"
+		      	minlength="8"
+			    maxlength="40"
+		      	type="password" /><span class="input-tip">8 to 40 characters</span></div>
+		      <span class="help-block"
+		            ng-show="(snmpForm.$submitted || snmpForm.privpasswd.$dirty) &&
+		                                snmpForm.privpasswd.$error.required">
+		        The Privacy Password is required.
+		      </span>
+		      <span class="help-block"
+                    ng-show="(snmpForm.$submitted || snmpForm.privpasswd.$dirty) && snmpForm.privpasswd.$error.minlength">
+                The Privacy Password must be of minimum length 8 characters.
+              </span>
+              <span class="help-block"
+                    ng-show="(snmpForm.$submitted || snmpForm.privpasswd.$dirty) && snmpForm.privpasswd.$error.maxlength">
+                The Privacy Password must be of maximum length 40 characters.
+              </span>
+		    </div>
+		  </div>
+		</div>
+	  </fieldset>
+	  </div>
+  </div>
+
+  <div class="openattic-modal-footer">
+    <div class="button-group text-right">
+      <oa-submit-button form="snmpForm"
+                        on-submit="$ctrl.submitAction(snmpForm)">
+        Submit
+      </oa-submit-button>
+      <button id="cancelButton"
+              class="btn btn-link btn-sm"
+              ng-click="$ctrl.cancel()">Cancel</button>
+    </div>
+  </div>
+  <input name="id" ng-model="$ctrl.snmp.id" type="hidden">
+</form>

@@ -1,0 +1,48 @@
+<oa-loading-panel message="Ceph 集群设置正在加载..."
+                  ng-show="!$ctrl.error && !$ctrl.model.$resolved"></oa-loading-panel>
+
+<form ng-show="!$ctrl.error && $ctrl.model.$resolved"
+      name="clusterForm"
+      role="form"
+      class="form-horizontal"
+      novalidate>
+  <div class="openattic-modal-header">
+    <span>集群:
+      <small> {{ $ctrl.model.name }} ({{ $ctrl.model.fsid }})</small>
+    </span>
+  </div>
+
+  <div class="openattic-modal-content">
+    <fieldset>
+      <legend>
+        <small>配置OSD标识</small>
+      </legend>
+      <div class="checkbox checkbox-primary"
+           ng-repeat="(key, flag) in $ctrl.data.osd_flags">
+        <input type="checkbox"
+               ng-model="flag.value"
+               name="active"
+               id="{{key}}">
+        <label for="{{key}}"
+               ng-class="['tc_' + key]">
+          <strong>{{ flag.name }}</strong>
+          <br>
+          <span class="text-muted">{{flag.description}}</span>
+        </label>
+        <hr class="oa-hr-small">
+      </div>
+    </fieldset>
+  </div>
+
+  <div class="openattic-modal-footer">
+    <div class="button-group text-right">
+      <oa-submit-button form="clusterForm"
+                        on-submit="$ctrl.submitAction()">
+        提交
+      </oa-submit-button>
+      <button id="cancelButton"
+              class="btn btn-link btn-sm"
+              ng-click="$ctrl.cancel()">取消</button>
+    </div>
+  </div>
+</form>

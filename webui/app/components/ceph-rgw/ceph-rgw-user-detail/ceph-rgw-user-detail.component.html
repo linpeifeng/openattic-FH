@@ -1,0 +1,75 @@
+<div class="panel panel-default tc_detailsTab">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{$ctrl.selection.item.user_id}}用户的详细信息</h3>
+    </div>
+    <div class="panel-body">
+        <dl class="dl-horizontal">
+            <dt>用户名:</dt>
+            <dd ng-bind="$ctrl.selection.item.user_id"></dd>
+            <dt>全名:</dt>
+            <dd ng-bind="$ctrl.selection.item.display_name"></dd>
+            <span ng-if="$ctrl.selection.item.email.length">
+                <dt>邮件地址:</dt>
+                <dd ng-bind="$ctrl.selection.item.email"></dd>
+            </span>
+            <dt>暂停:</dt>
+            <dd>{{ $ctrl.selection.item.suspended ? "Yes" : "No" }}</dd>
+            <dt>最大bucket数目:</dt>
+            <dd ng-bind="$ctrl.selection.item.max_buckets"></dd>
+            <span ng-if="$ctrl.selection.item.subusers.length">
+                <dt>子用户:</dt>
+                <span ng-repeat="subuser in $ctrl.selection.item.subusers | orderBy:'id'">
+                    <dd>{{ subuser.id }} ({{ subuser.permissions }})</dd>
+                </span>
+            </span>
+            <span ng-if="$ctrl.selection.item.caps.length">
+                <dt>功能:</dt>
+                <span ng-repeat="cap in $ctrl.selection.item.caps | orderBy:'type'">
+                    <dd>{{ cap.type }} ({{ cap.perm }})</dd>
+                </span>
+            </span>
+        </dl>
+        <div ng-if="$ctrl.selection.item.user_quota">
+            <legend>用户配额</legend>
+            <dl class="dl-horizontal">
+                <div ng-if="!$ctrl.selection.item.user_quota.enabled">
+                    <dt>最大数目:</dt>
+                    <dd>未启用</dd>
+                    <dt>最大对象数目:</dt>
+                    <dd>未启用</dd>
+                </div>
+                <div ng-if="$ctrl.selection.item.user_quota.enabled">
+                    <dt>最大数目:</dt>
+                    <dd ng-show="$ctrl.selection.item.user_quota.max_size_unlimited">无限制</dd>
+                    <dd ng-show="!$ctrl.selection.item.user_quota.max_size_unlimited"
+                        ng-bind="$ctrl.selection.item.user_quota.max_size"></dd>
+                    <dt>最大对象数目:</dt>
+                    <dd ng-show="$ctrl.selection.item.user_quota.max_objects_unlimited">无限制</dd>
+                    <dd ng-show="!$ctrl.selection.item.user_quota.max_objects_unlimited"
+                        ng-bind="$ctrl.selection.item.user_quota.max_objects"></dd>
+                </div>
+            </dl>
+        </div>
+        <div ng-if="$ctrl.selection.item.bucket_quota">
+            <legend>Bucket配额</legend>
+            <dl class="dl-horizontal">
+                <div ng-if="!$ctrl.selection.item.bucket_quota.enabled">
+                    <dt>最大数目:</dt>
+                    <dd>未启用</dd>
+                    <dt>最大对象数目:</dt>
+                    <dd>未启用</dd>
+                </div>
+                <div ng-if="$ctrl.selection.item.bucket_quota.enabled">
+                    <dt>最大数目:</dt>
+                    <dd ng-show="$ctrl.selection.item.bucket_quota.max_size_unlimited">无限制</dd>
+                    <dd ng-show="!$ctrl.selection.item.bucket_quota.max_size_unlimited"
+                        ng-bind="$ctrl.selection.item.bucket_quota.max_size"></dd>
+                    <dt>最大对象数目:</dt>
+                    <dd ng-show="$ctrl.selection.item.bucket_quota.max_objects_unlimited">无限制</dd>
+                    <dd ng-show="!$ctrl.selection.item.bucket_quota.max_objects_unlimited"
+                        ng-bind="$ctrl.selection.item.bucket_quota.max_objects"></dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>

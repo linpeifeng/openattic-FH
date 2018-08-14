@@ -1,0 +1,50 @@
+<div class="panel panel-default tc_detailsTab">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{$ctrl.selection.item.name}}详情</h3>
+    </div>
+    <div class="panel-body">
+        <dl class="dl-horizontal">
+            <dt>名称:</dt>
+            <dd ng-bind="$ctrl.selection.item.name"></dd>
+            <dt>块名称前缀:</dt>
+            <dd ng-bind="$ctrl.selection.item.block_name_prefix"></dd>
+            <dt>{{$ctrl.selection.item.data_pool ? 'Meta-' : ''}}存储池:</dt>
+            <dd ng-bind="$ctrl.selection.item.pool.name"></dd>
+            <div ng-if="$ctrl.selection.item.data_pool">
+              <dt>数据池:</dt>
+              <dd ng-bind="$ctrl.selection.item.data_pool.name"></dd>
+            </div>
+            <dt>总大小:</dt>
+            <dd ng-bind="$ctrl.selection.item.size | bytes"></dd>
+            <dt>对象大小:</dt>
+            <dd ng-bind="$ctrl.selection.item.obj_size | bytes"></dd>
+            <dt>对象数量:</dt>
+            <dd ng-bind="$ctrl.selection.item.num_objs"></dd>
+            <div ng-if="$ctrl.selection.item.features.length > 0">
+              <dt>特性:</dt>
+              <dd ng-repeat="feature in $ctrl.selection.item.features">{{$ctrl.features[feature].desc}}</dd>
+              <div ng-if="$ctrl.selection.item.features.indexOf('stripingv2') !== -1">
+                <dt>条带单元:</dt>
+                <dd ng-bind="$ctrl.selection.item.stripe_unit | bytes"></dd>
+                <dt>条带计数:</dt>
+                <dd ng-bind="$ctrl.selection.item.stripe_count"></dd>
+              </div>
+            </div>
+            <dt>已用:</dt>
+            <dd ng-if="$ctrl.selection.item.used_size !== null">
+              {{$ctrl.selection.item.usedPercent | number:2}}%
+              <span class="text-muted">(已用: {{$ctrl.selection.item.used_size | bytes}} &mdash; 空闲: {{$ctrl.selection.item.free | bytes}})</span>
+            </dd>
+            <dd ng-if="$ctrl.selection.item.used_size === null">
+              <span class="text-muted">无</span>
+            </dd>
+            <dt translate>Parent:</dt>
+            <dd>
+              <span ng-if="$ctrl.selection.item.parent">
+                {{ $ctrl.selection.item.parent.pool_name }}/{{ $ctrl.selection.item.parent.image_name }}@{{ $ctrl.selection.item.parent.snap_name }}
+              </span>
+              <span ng-if="!$ctrl.selection.item.parent">-</span>
+            </dd>
+        </dl>
+    </div>
+</div>

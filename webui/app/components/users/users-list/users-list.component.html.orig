@@ -1,0 +1,114 @@
+<oadatatable class="oadatatable tc_oadatatable_users"
+             data="$ctrl.data"
+             filter-config="$ctrl.filterConfig"
+             special="$ctrl"
+             selection="$ctrl.selection"
+             on-selection-change="$ctrl.onSelectionChange(selection)"
+             on-filter-config-change="$ctrl.onFilterConfigChange()">
+  <actions>
+    <a class="btn btn-sm btn-primary tc_addUser"
+       type="button"
+       ng-click="$ctrl.addAction()"
+       ng-hide="$ctrl.hasSelection">
+      <i class="fa fa-fw fa-plus"></i>添加
+    </a>
+    <a class="btn btn-sm btn-primary tc_editUser"
+       type="button"
+       ng-click="$ctrl.editAction()"
+       ng-show="$ctrl.hasSelection">
+      <i class="fa fa-fw fa-pencil"></i>编辑
+    </a>
+    <li>
+      <a ng-click="$ctrl.addAction()">
+        <i class="fa fa-fw fa-plus"></i>添加
+      </a>
+    </li>
+    <li ng-class="{disabled: !$ctrl.hasSelection}">
+      <a>
+        <i class="fa fa-fw fa-pencil"></i>编辑
+      </a>
+    </li>
+    <li class="divider"></li>
+    <li class="tc_deleteUser"
+        ng-class="{disabled: !$ctrl.hasSelection}"
+        max-selected="1">
+      <a ng-click="$ctrl.deleteAction()">
+        <i class="fa fa-fw fa-trash-o"></i>删除
+      </a>
+    </li>
+  </actions>
+  <table class="datatable table table-striped table-bordered table-hover dataTable">
+    <thead>
+      <tr>
+        <th class="oadatatablecheckbox"
+            ng-if="selection.available">
+          <input type="checkbox"
+                 ng-model="selection.checkAll">
+        </th>
+        <th sortfield="username"
+            sortheaderclass
+            sortdir="asc"
+            sortdefault
+            ng-show="columns['用户名']">用户名</th>
+        <th sortfield="first_name"
+            sortheaderclass
+            ng-show="columns['名字']">名字</th>
+        <th sortfield="last_name"
+            sortheaderclass
+            ng-show="columns['姓氏']">姓氏</th>
+        <th sortfield="email"
+            sortheaderclass
+            ng-show="columns['电子邮件']">电子邮件</th>
+        <th sortfield="is_active"
+            sortheaderclass
+            ng-show="columns['是否有效']">是否有效</th>
+        <th sortfield="is_staff"
+            sortheaderclass
+            ng-show="columns['是否为管理员']">是否为管理员</th>
+        <th sortfield="is_superuser"
+            sortheaderclass
+            ng-show="columns['是否拥有所有权限']">是否拥有所有权限</th>
+        <th sortfield="last_login"
+            sortheaderclass
+            ng-show="columns['最近登录']">最近登录</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="row in data.results"
+          ng-class="{ info: isRowSelected(row) }"
+          class="clickable"
+          ng-click="toggleSelection(row, $event)">
+        <td ng-if="selection.available">
+          <input type="checkbox"
+                 checklist-model="selection.items"
+                 checklist-value="row">
+        </td>
+        <td ng-show="columns['用户名']">
+          <span ng-bind="row.username"></span>
+          <a ui-sref="users-edit({user:row.id})" 
+             ng-bind="row.username"></a>
+        </td>
+        <td ng-show="columns['名字']"
+            ng-bind="row.first_name"></td>
+        <td ng-show="columns['姓氏']"
+            ng-bind="row.last_name"></td>
+        <td ng-show="columns['电子邮件']"
+            ng-bind="row.email"></td>
+        <td ng-show="columns['是否有效']">
+          <i class="fa fa-check fa-fw"
+             ng-show="row.is_active"></i>
+        </td>
+        <td ng-show="columns['是否为管理员']">
+          <i class="fa fa-check fa-fw"
+             ng-show="row.is_staff"></i>
+        </td>
+        <td ng-show="columns['是否拥有所有权限']">
+          <i class="fa fa-check fa-fw"
+             ng-show="row.is_superuser"></i>
+        </td>
+        <td ng-show="columns['最近登录']"
+            ng-bind="row.last_login | localeDate"></td>
+      </tr>
+    </tbody>
+  </table>
+</oadatatable>

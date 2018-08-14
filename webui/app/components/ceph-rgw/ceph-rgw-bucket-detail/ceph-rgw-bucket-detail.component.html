@@ -1,0 +1,46 @@
+<div class="panel panel-default tc_detailsTab">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{$ctrl.selection.item.bucket}}bucket的详细信息</h3>
+    </div>
+    <div class="panel-body">
+        <dl class="dl-horizontal">
+            <dt>名称:</dt>
+            <dd ng-bind="$ctrl.selection.item.bucket"></dd>
+            <dt>Id:</dt>
+            <dd ng-bind="$ctrl.selection.item.id"></dd>
+            <dt>所有人:</dt>
+            <dd ng-bind="$ctrl.selection.item.owner"></dd>
+            <span ng-if="$ctrl.selection.item.pool.length">
+                <dt>存储池:</dt>
+                <dd ng-bind="$ctrl.selection.item.pool"></dd>
+            </span>
+            <span ng-if="$ctrl.selection.item.index_pool.length">
+                <dt>索引池:</dt>
+                <dd ng-bind="$ctrl.selection.item.index_pool"></dd>
+            </span>
+            <dt>标识:</dt>
+            <dd ng-bind="$ctrl.selection.item.marker"></dd>
+            <dt>最大标识:</dt>
+            <dd ng-bind="$ctrl.selection.item.max_marker"></dd>
+            <dt>版本:</dt>
+            <dd ng-bind="$ctrl.selection.item.ver"></dd>
+            <dt>主版本:</dt>
+            <dd ng-bind="$ctrl.selection.item.master_ver"></dd>
+            <dt>修改时间:</dt>
+            <dd ng-bind="$ctrl.selection.item.mtime"></dd>
+            <dt>Shared via NFS:</dt>
+            <dd>{{ $ctrl.selection.item.is_referenced ? "Yes" : "No" }}</dd>
+        </dl>
+        <legend>Endpoint</legend>
+        <dl class="dl-horizontal">
+            <dt>S3:</dt>
+            <dd>
+                <a>{{ $ctrl.selection.item.endpoint.s3 }}</a>
+            </dd>
+            <dt>Swift:</dt>
+            <dd>
+                <a>{{ $ctrl.selection.item.endpoint.swift }}</a>
+            </dd>
+        </dl>
+    </div>
+</div>
