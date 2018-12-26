@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 import salt.client
-import six
 import requests
 import configobj
 import sys
 import socket
-import os, time
+import os, time, thread
+from funclass import Slotletter
 from datetime import datetime, timedelta
 sys.path.append("/usr/share/openattic/")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 from alerts.models import *
 from librados import *
+
 from django.db import transaction
 
 alert_level = {'0':'critical', '1':'major', '2':'info', '3':'minor'}
@@ -34,13 +35,15 @@ def getSetting():
     else:
         return {'prometheus_ip': '127.0.0.1:9090',
                 'temperature_var': '60',
-                'pool_readonly': '96',
-                'pool_used': '85'}
+                'pool_used': '85',
+                'alert_interval': '10'}
 
-prometheus_ip = str(getSetting()['prometheus_ip'])
-temperature_var = int(getSetting()['temperature_var'])
-pool_used = int(getSetting()['pool_used'])
-pool_readonly = int(getSetting()['pool_readonly'])
+setvar = getSetting()
+prometheus_ip = str(setvar['prometheus_ip'])
+temperature_var = int(setvar['temperature_var'])
+pool_used = int(setvar['pool_used'])
+pool_readonly = 100
+alert_interval = int(setvar['alert_interval'])
 
 #:*****************************
 
@@ -55,7 +58,6 @@ def prometheus_api(promsql=None, api=None):
         response = 'conn_error'
     return response
 
-
 def pingip(ip):
     try:
         exec_pro = subprocess.Popen('ping -c 1 %s'%ip, shell=True, universal_newlines=True,
@@ -69,7 +71,6 @@ def pingip(ip):
     except:
         ret = 'error'
     return ret
-
 
 def getdns(hostname,fullname=None):
     try:
@@ -98,20 +99,10 @@ def exec_comm(comm):
         ret = 'error'
     return ret
 
-
-def salt_cmd(tgt,
-             fun,
-             arg=(),
-             timeout=None,
-             expr_form='list',
-             ret='',
-             jid='',
-             **kwargs):
+def salt_cmd(tgt, fun, arg=(), timeout=None, expr_form='list', ret='', jid='', **kwargs):
     try:
         local = salt.client.LocalClient()
-        pub_data = local.run_job(tgt, fun, arg, expr_form, ret, timeout, jid,
-                                 listen=True, **kwargs)
-
+        pub_data = local.run_job(tgt, fun, arg, expr_form, ret, timeout, jid, listen=True, **kwargs)
         if not pub_data:
             return pub_data
         ret = {}
@@ -132,21 +123,38 @@ def salt_cmd(tgt,
             key["retcode"] = 1
             key["ret"] = "Salt minion is Down"
             ret[failed] = key
-
     except:
         ret = 'salt_error'
     return ret
 
-
-def insrt_alerts(time = None, insert_level = None, location = None,
-                     details = None, ceph_mib = None):
+def insrt_alerts(time = None, insert_level = None, location = None, details = None, ceph_mib = None):
     try:
-        Alert_Info.objects.create(time=time, level=insert_level,
-                                  location=location, details=details,
-                                  ceph_mib=ceph_mib)
+        if "Temperature" in details:
+            strinfo = details.split("high")[0]
+        else:
+            strinfo = details
+        if Alert_Info.objects.filter(details__contains=strinfo).filter(location=location).count() > 0:
+            pass
+        else:
+            Alert_Info.objects.create(time=time, level=insert_level, location=location, details=details, ceph_mib=ceph_mib)
+        CacheAlertInfo.objects.create(time=time, level=insert_level, location=location, details=details, ceph_mib=ceph_mib)
     except:
         return 'insert_error'
 
+def checkalertinfo():
+    try:
+        allalert = Alert_Info.objects.values("details")
+        for al in allalert:
+            if "Temperature" in al["details"]:
+                strinfo = al["details"].split("high")[0]
+            else:
+                strinfo = al["details"]
+            if CacheAlertInfo.objects.filter(details__contains=strinfo).count() > 0:
+                pass
+            else:
+                Alert_Info.objects.filter(details__contains=strinfo).delete()
+    except:
+        pass
 
 def ceph_conn():
     try:
@@ -157,7 +165,6 @@ def ceph_conn():
             return 'conn_error'
     except:
         return 'conn_error'
-
 
 def pooldegrade():
     conn = ceph_conn()
@@ -175,11 +182,6 @@ def pooldegrade():
             else:
                pass
         conn.disconnect()
-    else:
-        stra = 'conn ceph error'
-        insrt_alerts(time=now_time, insert_level=alert_level['1'], location=stra,
-                     details=stra, ceph_mib=ceph_mibs['NodeStatusError'])
-
 
 def poolusage():
     conn = ceph_conn()
@@ -192,31 +194,40 @@ def poolusage():
                 if pool_usage > pool_used:
                     level = alert_level['1']
                     miba = ceph_mibs['PoolCapacity']
-                    detail = pool_name + ' Capacity is used: ' + (
-                                "%.2f%%" % pool_usage)
+                    detail = pool_name + ' Exceeded the threshold: ' + (
+                                "%.2f%%" % pool_used)
                     insrt_alerts(time=now_time, insert_level=level,
                                  location=pool_name,
                                  details=detail, ceph_mib=miba)
                 else:
                     pass
 
-                if pool_usage > pool_readonly:
+                if pool_usage == pool_readonly:
                     level = alert_level['0']
                     miba = ceph_mibs['PoolStatusError']
-                    detail = pool_name + ':Read-only risk,Serious shortage of space'
+                    detail = pool_name + ':Read-only risk,pool status is abnormal'
                     insrt_alerts(time=now_time, insert_level=level,
                                  location=pool_name,
                                  details=detail, ceph_mib=miba)
-
                 else:
                     pass
         conn.disconnect()
-    else:
-        stra = 'conn ceph error'
-        insrt_alerts(time=now_time, insert_level=alert_level['1'],
-                     location=stra,
-                     details=stra, ceph_mib=ceph_mibs['NodeStatusError'])
 
+def poolus():
+    conn = ceph_conn()
+    try:
+        if conn != 'conn_error':
+            pool_list = conn.mon_command(cmd="health", argdict={"detail":"detail"})["detail"]
+            if len(pool_list) > 0:
+                for pool in pool_list:
+                    if 'full' in pool:
+                        pool_name = pool.split()[1].replace("'","")
+                        level = alert_level['1']
+                        mib = ceph_mibs['PoolCapacity']
+                        insrt_alerts(time=now_time, insert_level=level, location=pool_name, details=pool, ceph_mib=mib)
+            conn.disconnect()
+    except:
+        pass
 
 def poolrecovery():
     conn = ceph_conn()
@@ -236,12 +247,6 @@ def poolrecovery():
                 else:
                     pass
         conn.disconnect()
-    else:
-        stra = 'conn ceph error'
-        insrt_alerts(time=now_time, insert_level=alert_level['1'],
-                     location=stra,
-                     details=stra, ceph_mib=ceph_mibs['NodeStatusError'])
-
 
 def nodestatus_osd():
     conn = ceph_conn()
@@ -254,25 +259,23 @@ def nodestatus_osd():
         except:
           pass
         else:
-          host_list.append(osd['host'])
-          hoststatus_list.append({osd['host']:osd['status']})
+            if '-' in osd['host']:
+                host_in = osd['host'].split('-')[0]
+            else:
+                host_in = osd['host']
+            host_list.append(host_in)
+            hoststatus_list.append({host_in:osd['status']})
       for host in list(set(host_list)):
           host_ip = getdns(host)
-          if {host:'up'} not in hoststatus_list and pingip(host_ip) == 'error':
+          if pingip(host_ip) == 'error':
               node_level = alert_level['1']
               detail = 'IP: '+host_ip+' '+ host + ' Storage node down'
               miba = ceph_mibs['NodeStatusError']
               insrt_alerts(time=now_time, insert_level=node_level,
-                           location=host,
-                           details=detail, ceph_mib=miba)
+                           location=host, details=detail, ceph_mib=miba)
           else:
               pass
       conn.disconnect()
-    else:
-        stra = 'conn ceph error'
-        insrt_alerts(time=now_time, insert_level=alert_level['1'], location=stra,
-                     details=stra, ceph_mib=ceph_mibs['NodeStatusError'])
-
 
 def snmptrap(mibs, detail):
     try:
@@ -316,7 +319,6 @@ def snmptrap(mibs, detail):
     except:
         pass
 
-
 def sendsnmp():
     alerts = Alert_Info.objects.exclude(level__contains=alert_level['2']).values \
         ('time', 'level', 'location', 'details', 'ceph_mib')
@@ -325,123 +327,85 @@ def sendsnmp():
         detail = 'level: ' + alertx['level'] + ', ' + alertx['details']
         snmptrap(mib, detail)
 
-
-def getslotwwn(disk,host):
-    storcli_wwn = "storcli "+disk+" show all |grep WWN && "+"storcli "+disk+" show all |grep 'SN ='"
-    wwn = ''
+def gettemper(disk, host):
+    storcli = "smartctl -s on -a -T permissive %s|grep 'Temperature_Celsius'|awk '{print $(NF-5)}'" % (disk)
     try:
-      runsalt = salt_cmd(host,'cmd.run',[storcli_wwn])
+      runsalt = salt_cmd(host,'cmd.run',[storcli])
       if runsalt != 'salt_error' and runsalt:
           retcode = runsalt[host]['retcode']
           if retcode == 0:
-            wwn = runsalt[host]['ret'].replace(' ','').split('\n')[0].split('=')[1]
-            sn = runsalt[host]['ret'].replace(' ','').split('\n')[1].split('=')[1]
-            return wwn+':'+sn
-          else:
-              return 'run command error: storcli wwn'
-      else:
-          return 'salt master error: storcli wwn'
-    except:
-      return 'salt master error: storcli wwn'
-
-def getslotesid(wwn,host):
-    storcli_wwn = "storcli /call/eall/sall show all | grep "+wwn+" -B37 -A52"
-    try:
-      runsalt = salt_cmd(host,'cmd.run',[storcli_wwn])
-      if runsalt != 'salt_error' and runsalt:
-          retcode = runsalt[host]['retcode']
-          if retcode == 0:
-            return runsalt[host]['ret'].replace(' ','').split('\n')[0].replace('Drive','').replace(':','')
-          else:
-              return 'run command error: storcli eid sid'
-      else:
-          return 'salt master error: storcli eid sid'
-    except:
-      return 'salt master error: storcli eid sid'
-
-def getslot_raid(disk,host):
-    smartctl_wwn = "smartctl -s on -a -T permissive " + disk + "|grep 'Logical Unit id'|awk -F '0x' '{print $2}'"
-    wwna = ''
-    try:
-      runsalt = salt_cmd(host,'cmd.run',[smartctl_wwn])
-      if runsalt != 'salt_error' and runsalt:
-          retcode = runsalt[host]['retcode']
-          if retcode == 0:
-            wwna = runsalt[host]['ret'].replace(' ','')
-            storcli_wwn = "storcli /call/vall show all|grep -i "+wwna+" -B53"
-            restorcli = salt_cmd(host,'cmd.run',[storcli_wwn])
-            if restorcli != 'salt_error' and restorcli:
-              srecode = restorcli[host]['retcode']
-              if srecode == 0:
-                reinfos = restorcli[host]['ret'].split('\n')
-                raid = reinfos[0].split('/')[1]
-                for stinfo in reinfos:
-                  if 'EID:Slt' in stinfo:
-                    esid = reinfos[reinfos.index(stinfo)+2].split(' ')[0].split(':')
-                    stwn = '/%s/e%s/s%s' % (raid, esid[0], esid[1])
-                    wwn = getslotwwn(stwn,host).split(':')
-                    restra = 'Serial Number: %s :: RaidID: %s :: Enclosure Device ID: %s :: Slot Number: %s' % (wwn[1],raid,esid[0],esid[1])
-                    return restra
-              else:
-                return 'run command error: storcli'
-            else:
-              return 'salt master error: exec storcli'
+            return runsalt[host]['ret']
           else:
               return 'run command error: smartctl'
       else:
-          return 'salt master error'
+          return 'salt master error: smartctl'
     except:
-      return 'get slot error'
+      return 'salt master error: smartctl'
 
-
-def check_raid(disk,host):
-    smartctl_wwn = "smartctl -s on -a -T permissive " + disk + "|grep WWN|awk -F ':' '{print $2}'"
-    runsalt = salt_cmd(host,'cmd.run',[smartctl_wwn])
-    if runsalt != 'salt_error' and runsalt:
-        retcode = runsalt[host]['retcode']
-        if retcode == 0:
-          return runsalt[host]['ret'].replace(' ','')
-        else:
-            return 'run command error: %s' % (smartctl_wwn)
-    else:
-        return 'salt master error'
-
-
-def getslotnoraid(disk,host):
-    smartctl_wwn = "smartctl -s on -a -T permissive " + disk + "|grep WWN|awk -F ':' '{print $2}'"
-    sernums = "smartctl -s on -a -T permissive " + disk + "|grep 'Serial Number'|awk -F ' ' '{print $3}'"
-    wwn = sernum = ''
+def gettemper_scsi():
+    diskinfo = {
+        'healthy': '/api/v1/query?query=smartmon_device_smart_healthy{disk!~"/dev/bus/0"}',
+    }
     try:
-      for x in (smartctl_wwn, sernums):
-          runsalt = salt_cmd(host,'cmd.run',[x])
-          if runsalt != 'salt_error' and runsalt:
-              retcode = runsalt[host]['retcode']
-              if retcode == 0:
-                  if x == smartctl_wwn:
-                      wwn = runsalt[host]['ret'].replace(' ','')
-                  else:
-                      sernum = runsalt[host]['ret'].replace(' ','')
-              else:
-                  return 'run command error: %s' % (x)
-          else:
-              return 'salt master error get slot'
-      if 'error' not in getslotesid(wwn, host):
-        esid = getslotesid(wwn, host).split('/')
-        restra = 'Serial Number: %s :: RaidID: %s :: Enclosure Device ID: %s :: Slot Number: %s' % (sernum,esid[1],esid[2],esid[3])
-      else:
-        esid = 'get eID slotID error'
-        restra = 'Serial Number: %s :: RaidID: %s :: Enclosure Device ID: %s :: Slot Number: %s' % (sernum,'Nofound','Nofound','Nofound')
-      return restra
+        for disk in diskinfo.keys():
+            diskdata = prometheus_api(api=diskinfo[disk])
+            if diskdata != 'conn_error':
+                if diskdata['status'] == 'success':
+                    for x in diskdata['data']['result']:
+                        detail = None
+                        level = None
+                        mib = ceph_mibs['NodeDisk']
+                        diskname = x['metric']['disk']
+                        host = x['metric']['instance'].split(':')[0]
+                        hostvar = getdns(host, fullname=1)
+                        ip = getdns(host)
+                        if x['metric']['type'] == 'scsi' :
+                            detail = ip + ' ' + host + ' ' + diskname + ' Temperature is too high '
+                            tempervar = gettemper(diskname, hostvar)
+                            if "error" not in tempervar and tempervar != "" and int(tempervar) >= temperature_var:
+                                level = alert_level['3']
+                        if level is not None:
+                            sdxdisk = str(diskname).split("/")[-1]
+                            slotinfo = Disk_Info.objects.filter(hostname=hostvar, disk=sdxdisk).values("solt").first()
+                            print slotinfo
+                            if slotinfo:
+                                details = str(detail) +tempervar+'::'+ slotinfo["solt"]
+                                insrt_alerts(time=now_time, insert_level=level, location=host, details=details, ceph_mib=mib)
+                        else:
+                            pass
+                else:
+                    stra = 'select promethus null'
+                    insrt_alerts(time=now_time, insert_level=alert_level['3'], location=stra, details=stra, ceph_mib=ceph_mibs['NodeDisk'])
+            else:
+                stra = 'conn promethus api error'
+                insrt_alerts(time=now_time, insert_level=alert_level['3'], location=stra, details=stra, ceph_mib=ceph_mibs['NodeDisk'])
     except:
-      return 'get slot error'
+        pass
 
-def getslot(disk,host):
-  raid_info = check_raid(disk,host)
-  if raid_info == '':
-    return getslot_raid(disk,host)
-  else:
-    return getslotnoraid(disk,host)
-
+def gettemper_nvme():
+    disk = Disk_Info.objects.filter(disk__contains="nvme")
+    try:
+        for x in disk:
+            detail = None
+            level = None
+            mib = ceph_mibs['NodeDisk']
+            nvmetemp = "nvme smart-log %s|grep ^temperature|awk '{print $(NF-1)}'" % (x.disk)
+            runsalta = salt_cmd(x.hostname, 'cmd.run', [nvmetemp])
+            if runsalta != 'salt_error' and runsalta:
+                retcode = runsalta[x.hostname]['retcode']
+                restr = runsalta[x.hostname]['ret']
+                if retcode == 0 and restr and "No such" not in restr:
+                    if int(restr) >= temperature_var:
+                        level = alert_level['3']
+                        detail =  getdns(x.hostname) + ' ' + x.hostname + ' ' + x.disk + ' Temperature is too high %s ' % (restr)
+                elif retcode == 0 and "No such" in restr:
+                    level = alert_level['3']
+                    detail = getdns(x.hostname) + ' ' + x.hostname + ' ' + x.disk + ' disk offline '
+                if detail is not None and level is not None:
+                    details = detail + '::' + x.solt
+                    insrt_alerts(time=now_time, insert_level=level, location=x.hostname, details=details, ceph_mib=mib)
+    except:
+        pass
 
 def nodedisk():
     diskinfo = {
@@ -449,7 +413,6 @@ def nodedisk():
         'healthy': '/api/v1/query?query=smartmon_device_smart_healthy{disk!~"/dev/bus/0"}',
         'temperature': '/api/v1/query?query=smartmon_temperature_celsius_raw_value{disk!~"/dev/bus/0"}',
     }
-
     for disk in diskinfo.keys():
         diskdata = prometheus_api(api=diskinfo[disk])
         if diskdata != 'conn_error':
@@ -465,6 +428,7 @@ def nodedisk():
                         if x['value'][1] != '0':
                             level = alert_level['3']
                             detail = ip + ' ' + host + ' ' + diskname + 'Offline test error'
+                    '''
                     elif disk == 'healthy' and 'dev' in diskname:
                         if x['value'][1] != '1' and x['metric']['type'] == 'sat' :
                             level = alert_level['3']
@@ -472,85 +436,48 @@ def nodedisk():
                         if x['value'][1] != '0' and x['metric']['type'] == 'scsi' :
                             level = alert_level['3']
                             detail = ip + ' ' + host + ' ' + diskname + ' Sub-health'
-                    '''
                     elif disk == 'temperature' and 'dev' in diskname:
                         if int(x['value'][1]) >= temperature_var:
                             level = alert_level['3']
                             detail = ip + ' ' + host + ' ' + diskname + ' Temperature is too high %s ' % (x['value'][1])
                     '''
                     if detail is not None and level is not None:
-                        details = detail +'::'+ getslot(diskname,getdns(host,fullname=1))
-                        insrt_alerts(time=now_time, insert_level=level,
-                                     location=host,
-                                     details=details, ceph_mib=mib)
+                        sdxdisk = str(diskname).split("/")[-1]
+                        slotinfo = Disk_Info.objects.filter(hostname=getdns(host, fullname=1), disk=sdxdisk).values("solt").first()
+                        if slotinfo:
+                            details = str(detail) +'::'+ slotinfo["solt"]
+                            insrt_alerts(time=now_time, insert_level=level, location=host, details=details, ceph_mib=mib)
                     else:
                         pass
             else:
                 stra = 'select promethus null'
-                insrt_alerts(time=now_time, insert_level=alert_level['3'],
-                             location=stra,
-                             details=stra,
-                             ceph_mib=ceph_mibs['NodeDisk'])
+                insrt_alerts(time=now_time, insert_level=alert_level['3'], location=stra, details=stra, ceph_mib=ceph_mibs['NodeDisk'])
         else:
             stra = 'conn promethus api error'
-            insrt_alerts(time=now_time, insert_level=alert_level['3'],
-                         location=stra,
-                         details=stra,
-                         ceph_mib=ceph_mibs['NodeDisk'])
+            insrt_alerts(time=now_time, insert_level=alert_level['3'], location=stra, details=stra, ceph_mib=ceph_mibs['NodeDisk'])
 
-def gettemper(rid,eid,sid,host):
-    storcli = "storcli /%s/e%s/s%s show all | grep Temperature" % (rid, eid, sid)
-    try:
-      runsalt = salt_cmd(host,'cmd.run',[storcli])
-      if runsalt != 'salt_error' and runsalt:
-          retcode = runsalt[host]['retcode']
-          if retcode == 0:
-            return runsalt[host]['ret'].split(' ')[4].replace('C', '')
-          else:
-              return 'run command error: storcli'
-      else:
-          return 'salt master error: sstorcli'
-    except:
-      return 'salt master error: storcli'
-
-def getdiskwwn(rid,eid,sid,host):
-    storcli_wwn = "storcli /%s/e%s/s%s show all | grep WWN" % (rid, eid, sid)
-    try:
-      runsalt = salt_cmd(host,'cmd.run',[storcli_wwn])
-      if runsalt != 'salt_error' and runsalt:
-          retcode = runsalt[host]['retcode']
-          if retcode == 0:
-            return runsalt[host]['ret']
-          else:
-              return 'run command error: storcli'
-      else:
-          return 'salt master error: storcli'
-    except:
-      return 'salt master error: storcli'
-
-def disktemper():
-  disk = Disk_Info.objects.all()
+def diskoffline():
+  disk = Disk_Info.objects.exclude(disk__contains="nvme")
   mib = ceph_mibs['NodeDisk']
   for x in disk:
     detail = None
     level = None
     try:
-      if pingip(getdns(x.hostname)) == 'error':
-        continue
-      elif pingip(getdns(x.hostname)) == 'ok':
-        if 'error' not in x.solt:
-          temper = gettemper(x.solt.split(' ')[5],x.solt.split(' ')[10],x.solt.split(' ')[14],x.hostname)
-        if 'error' not in temper and int(temper) >= temperature_var:
-          level = alert_level['3']
-          detail = getdns(x.hostname) + ' ' + x.hostname + ' ' + x.disk + ' Temperature is too high %s ' % (temper)
-        if detail is not None and level is not None:
-          details = detail +'::'+ x.solt
-          insrt_alerts(time=now_time, insert_level=level, location=x.hostname, details=details, ceph_mib=mib)
-        else:
-          pass
+      inip = getdns(x.hostname)
+      if 'error' not in x.solt and pingip(inip) != 'error':
+          disk_wwn = Slotletter().getwnsn_sas3ircu(x.solt.split(' ')[2], x.hostname)
+
+      if 'error' not in disk_wwn and disk_wwn != "null":
+        pass
+      elif disk_wwn == "null" and pingip(inip) != 'error':
+        level = alert_level['1']
+        detail =inip + ' ' + x.hostname + ' ' + x.disk + ' disk offline '
+
+      if detail is not None and level is not None:
+        details = detail +'::'+ x.solt
+        insrt_alerts(time=now_time, insert_level=level, location=x.hostname, details=details, ceph_mib=mib)
     except:
       pass
-
 
 def diskstatus():
     conn = ceph_conn()
@@ -564,48 +491,69 @@ def diskstatus():
             except:
               pass
             else:
-              nodehost = osd['host']
-              hoststatus_list.append({osd['host']: osd['status']})
-              osdid = osd['id']
-              hostname = getdns(nodehost, fullname=1)
+                if '-' in osd['host']:
+                    host_in = osd['host'].split('-')[0]
+                else:
+                    host_in = osd['host']
+                nodehost = host_in
+                hoststatus_list.append({host_in: osd['status']})
+                osdid = osd['id']
             if osd['status'] == 'down' and {nodehost: 'up'} in hoststatus_list:
-              slots = Disk_Info.objects.filter(hostname=hostname).filter(osd='osd.%s' % (osdid))
-              if slots.count() > 0:
-                  solt = list(slots.values('solt'))[0]['solt']
-                  disk_wwn = getdiskwwn(solt.split(' ')[5],solt.split(' ')[10],solt.split(' ')[14],hostname)
-                  sel_wwn = list(slots.values('wwn'))[0]['wwn']
-                  disk = list(slots.values('disk'))[0]['disk']
-                  detail = None
-                  if 'error' not in disk_wwn and sel_wwn in disk_wwn:
-                    pass
-                  elif 'error' not in disk_wwn and sel_wwn not in disk_wwn and 'WWN' in disk_wwn:
-                    pass
-                  else:
-                    level = alert_level['3']
-                    detail = getdns(hostname) + ' ' + hostname + ' ' + disk + ' disk offline '
-                  if detail is not None and level is not None:
-                    details = detail +'::'+ solt
-                    insrt_alerts(time=now_time, insert_level=level, location=hostname, details=details, ceph_mib=mib)
-                  else:
-                    pass
+                comm_df = "lsblk -s|grep ceph-%s -A3|grep disk|grep sd|awk '{print $1}'" % (osdid)
+                hosttema = getdns(nodehost, fullname=1)
+                runsalta = salt_cmd(hosttema, 'cmd.run', [comm_df])
+                if runsalta != 'salt_error' and runsalta:
+                    retcode = runsalta[hosttema]['retcode']
+                    if "-" in runsalta[hosttema]['ret']:
+                        redisk = runsalta[hosttema]['ret'].split("-")[1]
+                    else:
+                        redisk = None
+                    if retcode == 0 and redisk:
+                        smarta = "smartctl -s on -a -T permissive /dev/" + redisk + "|grep 'Serial [Nn]umber'|awk '{print $NF}'"
+                        runsaltb = salt_cmd(hosttema, 'cmd.run', [smarta])
+                        if runsaltb != 'salt_error' and runsaltb:
+                            retcode = runsaltb[hosttema]['retcode']
+                            if retcode == 0:
+                                if runsaltb[hosttema]['ret'] == '':
+                                    detail = 'osd-%s service down :: disk %s offline' % (osdid, redisk)
+                                else:
+                                    detail = 'osd-%s service down :: disk %s ' % (osdid, redisk)
+                                slots = Disk_Info.objects.filter(hostname=hosttema).filter(osd='osd-%s' % (osdid)).filter(disk=redisk)
+                                if slots.count() > 0:
+                                    stra = detail+'::'+list(slots.values('solt'))[0]['solt']
+                                else:
+                                    stra = detail+' :: get slot error'
+                            else:
+                                stra = 'osd-%s service down :: exec smartctl error' % (osdid)
+                        else:
+                            stra = 'salt master error'
+                    else:
+                        stra = 'osd-%s service down' % (osdid)
+                else:
+                    stra = 'salt master error'
+                insrt_alerts(time=now_time, insert_level=level, location=hosttema, details=stra, ceph_mib=mib)
             else:
                 continue
         conn.disconnect()
     else:
         stra = 'conn ceph error'
-        insrt_alerts(time=now_time, insert_level=alert_level['1'], location=stra,
-                     details=stra, ceph_mib=ceph_mibs['NodeStatusError'])
+        insrt_alerts(time=now_time, insert_level=alert_level['1'], location=stra, details=stra, ceph_mib=ceph_mibs['NodeStatusError'])
 
 while 1:
     now_time = datetime.now()+timedelta(hours=6)
     with transaction.atomic():
-      Alert_Info.objects.all().delete()
-      poolusage()
-      pooldegrade()
-      poolrecovery()
-      nodestatus_osd()
-      nodedisk()
-      diskstatus()
-      sendsnmp()
-    disktemper()
-    time.sleep(5)
+        #Alert_Info.objects.all().delete()
+        CacheAlertInfo.objects.all().delete()
+        poolusage()
+        #poolus()
+        pooldegrade()
+        poolrecovery()
+        thread.start_new_thread(nodestatus_osd, ())
+        nodedisk()
+        gettemper_scsi()
+        gettemper_nvme()
+        thread.start_new_thread(diskoffline, ())
+        #diskstatus()
+        sendsnmp()
+        checkalertinfo()
+    time.sleep(alert_interval)

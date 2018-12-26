@@ -6,7 +6,7 @@ cd /usr/share/openattic/
 export PYTHONPATH=/usr/share/openattic
 /usr/bin/python2.7 /usr/share/openattic/alerts/init_group.py
 
-rm -rf /etc/openattic/alertsvar.conf
+rm -f /etc/openattic/alertsvar.conf
 cp -a /usr/share/openattic/alerts/alertsvar.conf /etc/openattic/alertsvar.conf
 systemctl restart alertser-systemd.service
 

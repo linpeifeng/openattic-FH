@@ -119,7 +119,6 @@ class Client(object):
         if type(cmd) is str:
             return self.mon_command(
                 {'prefix': cmd}, argdict, output_format, default_return, target)
-
         elif type(cmd) is dict:
             (ret, out, err) = self._cluster.mon_command(
                 json.dumps(dict(cmd,
